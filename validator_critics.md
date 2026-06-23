@@ -1,0 +1,6 @@
+The proposed Solution Functions fail the Tripartite Rubric on multiple criteria:
+ **Boundary & Naming Violations (Execution Context Mixing):** Several functions inappropriately merge Scheduled Batch processes with Record-Triggered (On Create/Update) processes, making the Event/Scope in the name inaccurate.
+  For example, 'Automate Survey Data and Notifications on Survey Target / Account Scheduled Batch' contains both scheduled classes (V51000000001001, V51000000001002) and record-triggered flows (V51000000004009, V51000000002027, etc.). 
+  The same applies to 'Automate Field Cleansing and Health Maintenance on Account On Create/Update' (mixes daily scheduled flows with triggers) and 'Calculate YTD Event Expenses on Account Scheduled Batch' (mixes scheduled batches with an Event_Attendee_vod__c trigger). 
+  These must be split into separate functions based on their execution context (Scheduled vs. On Create/Update).\n\n2. **Custom App Naming Violation:** 'Custom App: Customer Satisfaction Surveys Data Collection / Management' uses the 'Custom App' prefix but contains component V51000000001007, which explicitly interacts with the Veeva `Call2_vod__c` object. 
+  The rubric strictly forbids using the 'Custom App' naming convention for functions that touch Veeva `__vod__c` objects. This must be renamed to follow the standard Hybrid function naming convention."

@@ -42,8 +42,6 @@ def validator_node(state: DomainState) -> Dict[str, Any]:
         "You must evaluate the proposed Solution Functions against this strict Tripartite Rubric:\n\n"
         "1. No Orphans: All Component Groups from the Input Candidate Domain MUST be assigned to at least one Proposed Solution Function.\n"
         "2. Business Intent, Naming & Boundaries:\n"
-        "   - Descriptions MUST focus on business outcomes. Strictly REJECT any technical jargon (e.g., 'Apex', 'Trigger', 'Visualforce', 'VQL', 'SOQL').\n"
-        "   - Naming Syntax MUST be followed:\n"
         "     - Standard/Hybrid functions: `[Action Verb] + [Context/Entity] + [Target Object] + [Event/Scope]`\n"
         "     - Standalone Custom Apps: `Custom App: [Module/App Name]...` (REJECT if this naming is used for functions containing Veeva `__vod__c` objects).\n"
         "   - Boundary Checks: REJECT if the Builder inappropriately merged a Hybrid Extension (touches Veeva objects) into a broad 'Custom App', or merged unrelated data domains. They must be split.\n"
