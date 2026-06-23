@@ -165,7 +165,7 @@ class VaultConnector:
 
 
 
-    def query(self, query:str, pagesize:int=0) -> list:
+    def query(self, query:str, pagesize:int=0) -> dict:
         """Executes a VQL (Vault Query Language) query and retrieves the results.
 
         This method handles pagination automatically to fetch all records matching the query.
