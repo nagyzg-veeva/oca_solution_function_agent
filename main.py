@@ -27,7 +27,7 @@ def main():
     print(f"Discovered {len(candidate_domains)} Candidate Domains. Sorted by complexity.")
     
     # For testing purposes, limit to the first 2 candidate domains
-    candidate_domains = candidate_domains[:2]
+    #candidate_domains = candidate_domains[:2]
     
     for i, domain in enumerate(candidate_domains):
         print(f"\n{'='*60}")

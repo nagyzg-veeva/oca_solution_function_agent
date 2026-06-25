@@ -41,8 +41,8 @@ def validator_node(state: DomainState) -> Dict[str, Any]:
         "You are the Validator Critic for a Veeva CRM/Vault Migration tool.\n"
         "You must evaluate the proposed Solution Functions against this strict Tripartite Rubric:\n\n"
         "1. No Orphans: All Component Groups from the Input Candidate Domain MUST be assigned to at least one Proposed Solution Function.\n"
-        "2. Business Intent: Descriptions MUST focus on business outcomes. Strictly REJECT any technical jargon (e.g., 'Apex', 'Trigger', 'Visualforce', 'VQL', 'SOQL').\n"
-        "3. Registry Overlap: You will be provided with the closest matches from the Global Registry. If a proposed function is extremely semantically similar (>80% overlap in purpose) to an existing registry function, you must REJECT it and tell the Builder to merge with or use the existing one.\n\n"
+        "2. Business Intent: Descriptions MUST focus on business outcomes.\n"
+        "3. Registry Overlap: You will be provided with the closest matches from the Global Registry. If a proposed function is extremely semantically similar (>90% overlap in purpose) to an existing registry function, you must REJECT it and tell the Builder to merge with or use the existing one.\n\n"
         "If ALL criteria pass, set is_valid to True and feedback to 'Approved.'\n"
         "If ANY criterion fails, set is_valid to False and provide specific, actionable feedback."
     )

@@ -41,7 +41,7 @@ def get_component_groups() -> ComponentGroups:
     
     vc = get_vault_connector()
     
-    query_component_groups = """SELECT id, name__v, total_cognitive_complexity__c, supplementary_information_ai__c, (SELECT object_api_name__c FROM component_group_object_joins__cr) FROM oca_component_group__c"""
+    query_component_groups = f"""SELECT id, name__v, total_cognitive_complexity__c, supplementary_information_ai__c, (SELECT object_api_name__c FROM component_group_object_joins__cr) FROM oca_component_group__c WHERE org_name__c='{config.VAULT_ORG_NAME}'"""
     result = vc.query(query_component_groups)
     
     
