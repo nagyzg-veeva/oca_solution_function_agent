@@ -6,6 +6,7 @@ from src.nodes.synthesizer import synthesizer_node
 from src.nodes.validator import validator_node
 from src.nodes.hitl import hitl_node
 from src.nodes.vault import write_to_vault_node
+from config.constants import MAX_RETRIES
 
 def route_validation(state: DomainState):
     """
@@ -13,7 +14,7 @@ def route_validation(state: DomainState):
     """
     if state.get("is_valid"):
         return "write_to_vault"
-    elif state.get("retry_count", 0) >= 3:
+    elif state.get("retry_count", 0) >= MAX_RETRIES:
         return "hitl_review"  # Max retries hit, trigger human fallback
     else:
         return "synthesize"   # Failed validation but under limit, loop back

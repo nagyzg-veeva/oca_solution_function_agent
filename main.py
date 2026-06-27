@@ -8,11 +8,20 @@ import pprint
 import config.config as config
 from src.tools.vault_tools import get_component_groups
 from src.graph import app
+from src.nodes.vault import hydrate_registry_from_csv, CSV_FILE
 from langgraph.types import Command
 
 def main():
     print("Hello from oca!")
     print(f"Connecting to Vault: {config.VAULT_HOSTNAME}")
+
+    n = hydrate_registry_from_csv()
+    if not os.path.isfile(CSV_FILE):
+        print("No existing CSV found; starting with an empty registry (first run).")
+    elif n == 0:
+        print("CSV present but empty; starting with an empty registry.")
+    else:
+        print(f"Loaded {n} existing Solution Functions into registry from CSV.")
 
     print("Fetching Component Groups from Vault...")
     result = get_component_groups()
@@ -42,7 +51,8 @@ def main():
             "retry_count": 0,
             "validation_feedback": "",
             "is_valid": False,
-            "proposed_functions": []
+            "proposed_functions": [],
+            "registry_matches": []
         }
         
         # Invoke the graph

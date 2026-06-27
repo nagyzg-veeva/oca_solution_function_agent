@@ -5,8 +5,9 @@ from src.state.schema import DomainState, SolutionFunction
 import json
 
 class SolutionFunctionModel(BaseModel):
-    name: str = Field(description="The name of the solution function (business focused).")
-    business_description: str = Field(description="A business-oriented description of what this function achieves, listing the functionalities the Solution Function provides through the included component groups.")
+    solution_function_id: str = Field(default="", description="Leave empty for a new function. When merging into an existing registry function (per Required Merges), set this to the existing function's id.")
+    name: str = Field(description="The name of the solution function (business focused). When merging, use the exact name of the existing registry function.")
+    business_description: str = Field(description="A comprehensive, business-oriented description that includes a clear, itemized list (bullet points) of the discrete functionalities this Solution Function provides. Must be easily understood by a Business Analyst without technical jargon.")
     primary_objects: list[str] = Field(description="List of primary objects (e.g. Account, Call2_vod__c).")
     component_groups: list[str] = Field(description="List of Component Group IDs assigned to this function. All input component groups must be assigned.")
     complexity_score: int = Field(description="The aggregated complexity score of all assigned component groups.")
@@ -25,22 +26,30 @@ def synthesizer_node(state: DomainState) -> Dict[str, Any]:
     """
     candidate_domain = state.get("candidate_domain", [])
     validation_feedback = state.get("validation_feedback", "")
+    registry_matches = state.get("registry_matches", [])
     
     # Construct the prompt
     system_prompt = (
         "You are a Veeva CRM/Vault Solution Architect. Your task is to automatically abstract technical "
         "Salesforce Component Groups into business-oriented Solution Functions.\n\n"
-        "Give a description of the business functionality the Solution Function provides with."
         "Guidelines:\n"
         "1. No Orphans: All input Component Groups must be assigned to at least one Solution Function.\n"
-        "2. Business Intent: Descriptions must focus on business outcomes.\n"
+        "2. Business Intent & Granularity: Descriptions MUST focus on business outcomes. Crucially, the description must include a detailed, itemized list of the discrete functionalities that the Solution Function provides. This list should enable a Business Analyst to clearly understand the specific capabilities and actions supported by the function (e.g., 'Allows users to capture signatures', 'Provides offline data entry'). Avoid technical jargon.\n"
+        "3. Registry Alignment & Merging: If you are given 'Required Merges' (existing registry functions that a proposal overlaps with), you MUST merge into each one. To merge: set solution_function_id to the existing function's id, adopt its exact Name, write ONE consolidated business description that covers BOTH the existing capabilities (provided) and the new ones from this domain, and assign the relevant Component Groups from this candidate domain to that function. Do not invent a new name or id for a merged function. For all non-merged functions, leave solution_function_id empty.\n"
     )
     
     user_prompt = f"Here is the Candidate Domain (list of component groups):\n{json.dumps(candidate_domain, indent=2)}\n"
     
     if validation_feedback:
         user_prompt += f"\nPrevious Validation Feedback (Fix these issues):\n{validation_feedback}\n"
-    
+
+    if registry_matches:
+        user_prompt += (
+            "\nRequired Merges (existing registry functions to merge the listed "
+            "proposals into — adopt their id and name, consolidate descriptions "
+            f"and component groups):\n{json.dumps(registry_matches, indent=2)}\n"
+        )
+
     user_prompt += "\nPlease propose the Solution Functions based on these guidelines."
     
     print(f"   [Synthesizer] Calling LLM with Candidate Domain ({len(candidate_domain)} groups)...")
@@ -54,6 +63,7 @@ def synthesizer_node(state: DomainState) -> Dict[str, Any]:
     # Convert Pydantic models back to TypedDict formats for State
     proposed_functions = [
         {
+            "solution_function_id": pf.solution_function_id,
             "name": pf.name,
             "business_description": pf.business_description,
             "primary_objects": pf.primary_objects,
@@ -64,8 +74,8 @@ def synthesizer_node(state: DomainState) -> Dict[str, Any]:
     ]
     
     # Return the state update.
-    # We increment retry_count by 1
+    # The retry counter is owned by the validator (incremented only on a
+    # failed validation), so the synthesizer does not touch it here.
     return {
-        "proposed_functions": proposed_functions,
-        "retry_count": 1
+        "proposed_functions": proposed_functions
     }
