@@ -6,7 +6,7 @@ from src.state.schema import DomainState
 from src.vector_store import add_solution_function_to_store, get_function
 
 CSV_FILE = "solution_functions.csv"
-CSV_HEADER = ["ID", "Name", "Business Description", "Primary Objects", "Component Groups", "Complexity Score"]
+CSV_HEADER = ["ID", "Name", "Description", "Primary Objects", "ComponentGroups", "Complexity Score"]
 
 
 def _dedup(seq: List[str]) -> List[str]:

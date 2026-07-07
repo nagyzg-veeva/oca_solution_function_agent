@@ -8,10 +8,16 @@ between graph.py and validator.py.
 # Number of failed validations allowed before falling back to human review.
 MAX_RETRIES = 3
 
-# How many nearest registry neighbours the validator retrieves per proposed
-# function. >1 gives visibility into secondary overlaps (logged, not merged).
-REGISTRY_SEARCH_K = 3
+# Component-group Jaccard threshold (symmetric overlap) at or above which a
+# proposed function is considered a structural near-duplicate of an existing
+# registry function. Auto-merge (with corroboration) and gray-zone (without)
+# both gate on this. The overlap coefficient is logged as a diagnostic only
+# and is never used for routing (prevents the containment trap).
+CG_JACCARD_THRESHOLD = 0.8
 
-# Cosine-similarity score (higher = more similar) at or above which a proposed
-# function is considered an overlap that must be merged into the existing one.
-OVERLAP_THRESHOLD = 0.8
+# Name similarity threshold (rapidfuzz token_set_ratio, 0-100 scale) for the
+# corroboration prong of auto-merge.
+NAME_SIM_THRESHOLD = 80
+
+# Primary-object Jaccard threshold for the corroboration prong of auto-merge.
+OBJECT_OVERLAP_THRESHOLD = 0.75

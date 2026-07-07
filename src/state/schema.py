@@ -28,6 +28,13 @@ class DomainState(TypedDict):
     # describes the existing function the Synthesizer must merge into.
     registry_matches: List[dict]
 
+    # Gray-zone pairs deferred by the Validator to the Adjudicator node.
+    # Each entry: {"proposed": <SolutionFunction dict>,
+    #              "candidates": List[(<registry record>, <ScoreBreakdown>)]}.
+    # No reducer (overwrite): the Validator fully replaces each pass; the
+    # Adjudicator clears to [] after resolving.
+    gray_zone_pairs: List[dict]
+
     # Loop control: count of failed validations (retries) so far.
     # operator.add reducer accumulates the +1 the validator returns on failure.
     retry_count: Annotated[int, operator.add]

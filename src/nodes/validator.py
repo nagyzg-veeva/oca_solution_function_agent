@@ -2,8 +2,8 @@ from typing import Dict, Any
 from pydantic import BaseModel, Field
 from langchain_google_genai import ChatGoogleGenerativeAI
 from src.state.schema import DomainState
-from src.vector_store import search_similar_functions
-from config.constants import REGISTRY_SEARCH_K, OVERLAP_THRESHOLD
+from src.vector_store import registry
+from src.dedup.scorer import score_pair, tier, Tier
 import json
 
 class ValidatorOutput(BaseModel):
@@ -14,67 +14,90 @@ llm = ChatGoogleGenerativeAI(model="gemini-3.1-pro-preview", temperature=0.1)
 structured_llm = llm.with_structured_output(ValidatorOutput)
 
 
+def _build_directive(proposed: dict, candidate: dict, score) -> dict:
+    """Build a merge directive in the shape the Synthesizer's prompt expects."""
+    return {
+        "proposed_name": proposed.get("name", ""),
+        "existing_id": candidate.get("solution_function_id", candidate.get("id", "")),
+        "existing_name": candidate.get("name", ""),
+        "existing_description": candidate.get("business_description", ""),
+        "existing_component_groups": candidate.get("component_groups", []),
+        "existing_primary_objects": candidate.get("primary_objects", []),
+        "existing_complexity": candidate.get("complexity_score", 0),
+        "score": {
+            "cg_jaccard": score.cg_jaccard,
+            "overlap_coeff": score.overlap_coeff,
+            "name_sim": score.name_sim,
+            "object_jaccard": score.object_jaccard,
+            "cg_set_equality": score.cg_set_equality,
+        },
+    }
+
+
 def _detect_overlaps(proposed_functions):
     """
-    Code-authoritative Registry Overlap check (rubric criterion 3).
+    Multi-signal Registry Overlap check (rubric criterion 3).
 
-    Returns (registry_matches, notes):
-      - registry_matches: structured merge directives for proposed functions
-        whose closest registry neighbour is at/above OVERLAP_THRESHOLD and that
-        are not already merged into that neighbour.
-      - notes: human-readable log lines (secondary overlaps, resolved merges).
+    Scans the full in-memory registry (hydrated at startup by Fix A) and
+    scores each (proposed, candidate) pair with the deterministic scorer
+    (CG Jaccard + name similarity + object overlap). Pairs are tiered into
+    AUTO_MERGE, GRAY_ZONE (deferred to the adjudicator node), or NO_MERGE.
 
-    A proposed function that already carries the solution_function_id of its
-    closest match is treated as an already-resolved merge (loop terminator):
-    it is NOT re-flagged, which prevents the merged proposal from overlapping
-    itself forever.
+    Returns (auto_merges, gray_zone_pairs, notes):
+      - auto_merges: merge directives for AUTO_MERGE pairs (single-match only;
+        multi-match is promoted to gray zone for canonical selection).
+      - gray_zone_pairs: deferred pairs for the adjudicator node.
+      - notes: human-readable log lines (gray-zone flags, multi-match
+        promotions, overlap-coefficient diagnostics).
+
+    Loop terminator (Q9): a proposed function already carrying a non-empty
+    solution_function_id has been resolved in a prior pass; skip registry
+    scanning for it entirely. Only criteria 1&2 (LLM) still apply.
     """
-    registry_matches = []
+    auto_merges = []
+    gray_zone = []
     notes = []
 
     for func in proposed_functions:
-
-        #TESZT 
-        test_string = f'{func["name"]} {func["business_description"]}'
-        if "DCR".lower() in test_string.lower():
-            print("DCR Found")
-
-        results = search_similar_functions(func["business_description"], k=REGISTRY_SEARCH_K)
-        if not results:
+        if func.get("solution_function_id"):
+            # Already merged into a canonical in a prior pass; do not rescan.
             continue
 
-        top_doc, top_score = results[0]
-        top_id = top_doc.metadata.get("solution_function_id")
-        proposed_id = func.get("solution_function_id", "")
+        prop_auto = []
+        prop_gray = []
 
-        # Loop terminator: already merged into this match.
-        if proposed_id and proposed_id == top_id:
+        for cid, candidate in registry.items():
+            score = score_pair(func, candidate)
+            t = tier(score)
+
+            if t == Tier.AUTO_MERGE:
+                prop_auto.append((candidate, score))
+            elif t == Tier.GRAY_ZONE:
+                prop_gray.append((candidate, score))
+                notes.append(
+                    f"'{func['name']}' gray-zone vs '{candidate.get('name', '')}' "
+                    f"(CG Jaccard {score.cg_jaccard:.2f}, name_sim {score.name_sim:.1f}, "
+                    f"object_jaccard {score.object_jaccard:.2f}, "
+                    f"overlap_coeff {score.overlap_coeff:.2f})"
+                )
+
+        # Q1: multi-match (>=2 auto-merge candidates) is ambiguous; promote
+        # the whole cluster to gray zone for the adjudicator to pick canonical.
+        if len(prop_auto) >= 2:
             notes.append(
-                f"'{func['name']}' already merged into '{top_doc.metadata.get('name')}' "
-                f"(id {top_id}); overlap resolved."
+                f"'{func['name']}' matched {len(prop_auto)} AUTO_MERGE candidates; "
+                "promoting to gray zone for canonical selection."
             )
-            continue
+            prop_gray.extend(prop_auto)
+            prop_auto = []
 
-        if top_score >= OVERLAP_THRESHOLD:
-            registry_matches.append({
-                "proposed_name": func["name"],
-                "existing_id": top_id,
-                "existing_name": top_doc.metadata.get("name"),
-                "existing_description": top_doc.page_content,
-                "existing_component_groups": top_doc.metadata.get("component_groups", []),
-                "existing_primary_objects": top_doc.metadata.get("primary_objects", []),
-                "existing_complexity": top_doc.metadata.get("complexity_score", 0),
-                "score": float(top_score),
-            })
-            # Surface (do not silently drop) secondary above-threshold matches.
-            for doc, score in results[1:]:
-                if score >= OVERLAP_THRESHOLD:
-                    notes.append(
-                        f"'{func['name']}' also overlaps '{doc.metadata.get('name')}' "
-                        f"(similarity {score:.2f}); v1 merges only the top match."
-                    )
+        for candidate, score in prop_auto:
+            auto_merges.append(_build_directive(func, candidate, score))
 
-    return registry_matches, notes
+        if prop_gray:
+            gray_zone.append({"proposed": func, "candidates": prop_gray})
+
+    return auto_merges, gray_zone, notes
 
 
 def validator_node(state: DomainState) -> Dict[str, Any]:
@@ -85,15 +108,18 @@ def validator_node(state: DomainState) -> Dict[str, Any]:
     2. Business Intent & Granularity (outcomes, itemized, no jargon) -> judged by the LLM
     3. Registry Overlap (semantic similarity to existing functions)  -> determined in code
 
-    Criterion 3 is handled deterministically against the vector store so the
-    merge directive (registry_matches) the Synthesizer needs is exact, and so
-    an already-merged proposal is never falsely rejected for overlap.
+    Criterion 3 is handled deterministically against the in-memory registry
+    (hydrated at startup) via the multi-signal scorer in src/dedup/scorer.py,
+    so the merge directive (registry_matches) the Synthesizer needs is exact,
+    and an already-merged proposal is never falsely rejected for overlap.
+    Gray-zone pairs (CG-strong but uncorroborated) are deferred to the
+    adjudicator node for LLM resolution.
     """
     proposed_functions = state.get("proposed_functions", [])
     candidate_domain = state.get("candidate_domain", [])
 
     # --- Criterion 3: code-authoritative overlap detection ---
-    registry_matches, notes = _detect_overlaps(proposed_functions)
+    auto_merges, gray_zone, notes = _detect_overlaps(proposed_functions)
     for note in notes:
         print(f"   [Validator] NOTE: {note}")
 
@@ -123,32 +149,42 @@ Proposed Solution Functions to evaluate:
         {"role": "user", "content": user_prompt}
     ])
 
-    # Final validity = criteria 1&2 (LLM) AND no unresolved overlaps (code).
-    is_valid = response.is_valid and not registry_matches
+    # Final validity = criteria 1&2 (LLM) AND no unresolved auto-merges.
+    # Gray-zone pairs are deferred to the adjudicator node, which finalizes
+    # is_valid after resolving them; if no gray zone exists, this is final.
+    provisional = response.is_valid
+    is_valid = provisional and not auto_merges
     feedback = response.validation_feedback
 
-    if registry_matches:
+    if auto_merges:
         merge_lines = [
             f"- Merge proposed function '{m['proposed_name']}' into existing registry "
             f"function '{m['existing_name']}' (set solution_function_id to "
             f"'{m['existing_id']}', adopt its exact name, and consolidate the "
             f"description and component groups)."
-            for m in registry_matches
+            for m in auto_merges
         ]
         overlap_feedback = "Registry overlap detected. Required merges:\n" + "\n".join(merge_lines)
         # Prepend overlap instructions; keep any criteria-1&2 feedback too.
         feedback = (overlap_feedback + ("\n\n" + feedback if feedback and feedback != "Approved." else "")).strip()
-        print(f"   [Validator] {len(registry_matches)} overlap(s) detected -> instructing merge.")
+        print(f"   [Validator] {len(auto_merges)} auto-merge(s) detected -> instructing merge.")
+
+    if gray_zone:
+        print(f"   [Validator] {len(gray_zone)} proposed function(s) deferred to adjudicator (gray zone).")
 
     update: Dict[str, Any] = {
         "is_valid": is_valid,
         "validation_feedback": feedback,
-        "registry_matches": registry_matches,
+        "registry_matches": auto_merges,   # full replace each pass
+        "gray_zone_pairs": gray_zone,      # deferred to adjudicator (possibly [])
     }
 
     # retry_count counts failed validations only. The DomainState reducer is
     # operator.add, so omitting the key on success leaves the count unchanged
-    # (a first-pass approval keeps retry_count == 0).
+    # (a first-pass approval keeps retry_count == 0). The validator increments
+    # only for its own failure modes (criteria 1&2 failure or auto-merge
+    # directives); the adjudicator increments separately for gray-zone merges.
+    # Gray-zone deferral does NOT pre-increment (the adjudicator decides).
     if not is_valid:
         update["retry_count"] = 1
 

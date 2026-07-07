@@ -1,0 +1,103 @@
+ID,Name,Description,Primary Objects,ComponentGroups,Complexity Score
+V_68441F0E,Global Account Search & Territory Alignment,"Enables sales representatives to search for accounts and addresses globally and aligns them to appropriate territories based on ZIP codes.
+
+* Allows users to search for accounts and addresses across the entire organization.
+* Filters search results based on dynamic visibility rules.
+* Automatically aligns accounts to territories using ZIP code mapping.
+* Maintains a history of territory alignments for auditing and reporting.","GAS_Alignment_History_vts__c, Address_vod__c, TEVA_Zip_To_Terr__c, GAS_Visibility_Configuration__c, GAS_Hierarchical_Setting__c, Account_Territory_Loader_vod__c","V51000000001001, V51000000002004",512
+V_B75E66F7,Third-Party Logistics Integration Tracking,"Monitors and tracks changes to Healthcare Professional (HCP) demographics and addresses to ensure accurate data synchronization with third-party logistics partners.
+
+* Monitors updates to critical account and address information.
+* Automatically captures modification timestamps when specific fields are changed.
+* Facilitates seamless data synchronization with external fulfillment and logistics vendors.","Knipper_Settings__c, Account, Address_vod__c","V51000000001016, V51000000001009",113
+V_209871EA,Data Encryption & Security Services,"Secures sensitive integration identifiers and business keys by encrypting data before it is saved in the system.
+
+* Encrypts unique business identifiers such as Federation IDs and Brand IDs.
+* Ensures sensitive integration keys are stored securely using base64 encoding.
+* Protects data integrity and confidentiality across account and product records.","Product_vod__c, Account, EncryptedCustomSetting__c","V51000000002022, V51000000001011",8
+V_DBFC3A60,Sandbox Data Masking & Anonymization,"Protects sensitive customer data in non-production environments by masking emails and identifiers, preventing accidental outbound communications during testing.
+
+* Automatically anonymizes customer contact email addresses after a sandbox refresh.
+* Appends invalid suffixes to email addresses to block real email transmissions.
+* Modifies integration identifiers to prevent unintended system integrations during testing.",Account,"V51000000001015, V51000000001008",85
+V_E920EACC,Account Merge & Territory Data Consolidation,"Manages the consolidation of territory and activity data when duplicate account records are merged.
+
+* Aggregates territory alignment records during an account merge.
+* Consolidates territory-specific field data, including year-to-date activities.
+* Ensures historical call and activity data is preserved and accurately reflected on the surviving account record.","TSF_vod__c, Account_Territory_Loader_vod__c",V51000000001007,95
+V_B2C8E670,Territory Activity Calculation,"Calculates and maintains year-to-date call activity metrics for sales territories.
+
+* Automatically calculates year-to-date call activity levels based on logged interactions.
+* Resets activity metrics according to the current calendar year.
+* Provides sales teams with accurate, up-to-date visibility into territory engagement levels.","TSF_vod__c, Call2_vod__c",V51000000002002,7
+V_8BDD524B,External System Schema API,"Provides an integration endpoint that exposes system schema details to external applications for data archiving and synchronization. Features include:
+- Exposing field properties and profile schemas via a secure API endpoint.
+- Allowing external applications to dynamically build compliant database tables.
+- Facilitating seamless data archiving and external reporting capabilities.",,V51000000001019,7
+V_730C599F,Educational Call Resource Tracking,"Enables field representatives to log and track educational materials shared with medical professionals during interactions. Features include:
+- Allowing representatives to register digital literature, posters, or videos provided during a call.
+- Providing a guided interface for identifying and selecting disseminated resources.
+- Enhancing compliance and reporting on educational material distribution.",,V51000000001020,0
+V_E03B5FA2,Remote Meeting Splash Screens,"Manages the display of splash screens and introductory visuals for remote meetings and virtual engagements. Features include:
+* Providing customizable splash screens for remote meeting sessions.
+* Enhancing the professional appearance of virtual engagements with healthcare professionals.
+* Supporting multiple variations of introductory screens for different meeting types.",,"V51000000001021, V51000000001022, V51000000001023, V51000000001024, V51000000001025, V51000000001026, V51000000001027, V51000000001028, V51000000001029, V51000000001030, V51000000001031, V51000000001032, V51000000001033, V51000000001034",0
+V_AFFC864E,Sync Tracking Maintenance,"Manages the cleanup and maintenance of synchronization tracking schedules to ensure optimal system performance. Features include:
+* Automatically removing outdated or unnecessary synchronization tracking schedules.
+* Optimizing system performance by clearing legacy sync data.
+* Ensuring background synchronization processes run efficiently.",,V51000000002019,0
+V_DE2B02A5,Metadata Package Management,"Facilitates the organization, retrieval, and packaging of system metadata components for deployment and version control.
+
+* Provides a user interface to track and manage metadata components linked to specific development branches.
+* Retrieves specified metadata components and stores them as compressed files for easy transfer.
+* Consolidates metadata from multiple branches into a single parent package to streamline deployments.
+* Builds custom manifests by linking selected org metadata components to a parent package record.","Branch_Component__c, Branch__c, Package_Component__c, Package__c","V51000000001002, V51000000001005, V51000000001004, V51000000001006, V51000000001003",395
+V_05108BA9,Veeva Sync and Tracking Management,"Manages the configuration and scheduling of data synchronization between Veeva CRM and offline devices to ensure data consistency.
+
+* Configures synchronization settings for critical CRM data, including sample limits.
+* Manages and schedules sync tracking processes to monitor data flow.
+* Allows administrators to delete or modify sync tracking schedules to optimize system performance.",Sample_Limit_vod__c,"V51000000001014, V51000000002019",114
+V_4DD50DC6,Educational Call Resource Management,"Empowers clinical representatives to manage and register educational materials shared with medical professionals during calls. Features include:
+* Allowing users to register digital literature, posters, or videos disseminated during educational calls.
+* Assisting field representatives with identifying and tracking specific educational resources utilized.
+* Enhancing compliance and reporting by maintaining a record of shared materials.",,V51000000001020,0
+V_CFFF18CE,Remote Meeting Experience Management,"Manages the visual and interactive elements of remote meetings to provide a professional and branded experience for healthcare professionals, as well as handling attendee data. Features include:
+- Providing customizable splash screens for remote meetings.
+- Enhancing the waiting room experience for attendees joining virtual calls.
+- Supporting the display of branding, instructions, or compliance messaging before a remote meeting begins.
+- Managing remote meeting attendee data and triggering related business logic upon attendee updates.",Remote_Meeting_vod__c,"V51000000001021, V51000000001022, V51000000001023, V51000000001024, V51000000001025, V51000000001026, V51000000001027, V51000000001028, V51000000001029, V51000000001030, V51000000001031, V51000000001032, V51000000001033, V51000000001034, V51000000002021",21
+V_C887E5DA,Field Coaching Report Management,Manages the end-to-end lifecycle of field coaching reports for sales leadership. Features include: - Coordinating the creation and finalization of coaching sessions. - Managing attachment-level validation and locking mechanisms. - Handling ownership record sharing and status modifications for employee coaching reports. - Facilitating archival data pull-forwards for historical coaching data.,"TEVA_Settings__c, Coaching_Report_vod__c","V51000000001017, V51000000002001",77
+V_6EB7201D,Sample Lot Catalog Synchronization,"Maintains accurate and up-to-date sample inventory records by synchronizing master catalog data with individual sample lots. Features include: 
+- Automatically cascading updates made to active flags, unit-of-measure values, or expiration dates from the Lot Catalog to matching Sample Lots. 
+- Ensuring data consistency across the sample management process. 
+- Reducing manual data entry and preventing compliance discrepancies in sample inventory.","Sample_Lot_vod__c, Lot_Catalog_vod__c",V51000000002003,45
+V_9B6AB0DE,Multichannel Consent Management,"Manages the capture and processing of consent for multichannel communications. Features include:
+* Automating consent processing for multichannel communications.
+* Ensuring compliance with data privacy regulations by tracking consent status.
+* Triggering updates based on changes to multichannel consent records.",Multichannel_Consent_vod__c,V51000000002020,26
+V_C423BDA1,External System Integration & Archiving,"Facilitates the integration between Salesforce and external archiving systems like Heroku. Features include:
+* Providing an integrated API endpoint that exposes field properties and profile schemas.
+* Allowing external applications to build schema-compliant database tables for archiving purposes.
+* Ensuring data structure consistency between Salesforce and external data stores.",,V51000000001019,7
+V_D91C2C4B,Data Synchronization Management,"Manages the scheduling and tracking of data synchronization processes. Features include:
+* Allowing administrators or automated processes to delete or reset sync tracking schedules.
+* Ensuring accurate tracking of data synchronization between offline devices and the server.
+* Maintaining system performance by clearing outdated synchronization logs or schedules.",,V51000000002019,0
+V_575DC9D9,Medical Insight Management,"Automates and orchestrates the lifecycle of medical insights captured by field medical teams. Features include:
+- Automatically date-stamping manager and director approvals.
+- Copying relevant fields and locking record types to ensure data integrity.
+- Triggering safety escalation alerts based on insight severity.
+- Facilitating internal handoffs and managing review dates.
+- Formatting data attributes and handling transition updates for seamless processing.",Medical_Insight_vod__c,"V51000000001010, V51000000002023",4
+V_A25C3967,Medical Inquiry Management,"Manages the lifecycle, fulfillment, and system integration of medical inquiries. Features include:
+* Synchronizing case snapshot details from manually created medical inquiries to their corresponding fulfillment records.
+* Supporting bi-directional integration between Veeva CRM and Veeva Vault for medical information inquiries.
+* Routing pending inquiries to appropriate teams or systems.
+* Aligning territory access vectors and managing user assignments on medical request objects to ensure proper visibility and handling.","Medical_Inquiry_vod__c, Medical_Inquiry_Fulfillment_vod__c, User","V51000000001012, V51000000002024",0
+V_661B0B9F,User Profile Management,"Automates the management and standardization of user profile information. Features include:
+* Automatically generating custom email addresses based on user first and last name inputs.
+* Updating user records with constructed email addresses to ensure standardized communication channels across the organization.",User,V51000000001013,0
+V_A49007FC,Educational Call Resource Management,"Empowers clinical representatives to manage and register educational materials shared with medical professionals during calls. Features include:
+* Allowing users to register digital literature, posters, or videos disseminated during educational calls.
+* Assisting field representatives with identifying and tracking specific educational resources utilized.
+* Enhancing compliance and reporting by maintaining a record of shared materials.",,V51000000001020,0
