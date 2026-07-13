@@ -3,6 +3,7 @@ from pydantic import BaseModel, Field
 from langchain_google_genai import ChatGoogleGenerativeAI
 from src.state.schema import DomainState, SolutionFunction
 import json
+from src.prompts.loader import get_system_prompt
 
 class SolutionFunctionModel(BaseModel):
     solution_function_id: str = Field(default="", description="Leave empty for a new function. When merging into an existing registry function (per Required Merges), set this to the existing function's id.")
@@ -29,14 +30,7 @@ def synthesizer_node(state: DomainState) -> Dict[str, Any]:
     registry_matches = state.get("registry_matches", [])
     
     # Construct the prompt
-    system_prompt = (
-        "You are a Veeva CRM/Vault Solution Architect. Your task is to automatically abstract technical "
-        "Salesforce Component Groups into business-oriented Solution Functions.\n\n"
-        "Guidelines:\n"
-        "1. No Orphans: All input Component Groups must be assigned to at least one Solution Function.\n"
-        "2. Business Intent & Granularity: Descriptions MUST focus on business outcomes. Crucially, the description must include a detailed, itemized list of the discrete functionalities that the Solution Function provides. This list should enable a Business Analyst to clearly understand the specific capabilities and actions supported by the function (e.g., 'Allows users to capture signatures', 'Provides offline data entry'). Avoid technical jargon.\n"
-        "3. Registry Alignment & Merging: If you are given 'Required Merges' (existing registry functions that a proposal overlaps with), you MUST merge into each one. To merge: set solution_function_id to the existing function's id, adopt its exact Name, write ONE consolidated business description that covers BOTH the existing capabilities (provided) and the new ones from this domain, and assign the relevant Component Groups from this candidate domain to that function. Do not invent a new name or id for a merged function. For all non-merged functions, leave solution_function_id empty.\n"
-    )
+    system_prompt = get_system_prompt("synthesizer_system")
     
     user_prompt = f"Here is the Candidate Domain (list of component groups):\n{json.dumps(candidate_domain, indent=2)}\n"
     

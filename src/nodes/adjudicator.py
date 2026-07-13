@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 from src.state.schema import DomainState
+from src.prompts.loader import get_system_prompt
 
 
 class AdjudicationResult(BaseModel):
@@ -17,22 +18,7 @@ llm = ChatGoogleGenerativeAI(model="gemini-3.1-pro-preview", temperature=0.0)
 structured_llm = llm.with_structured_output(AdjudicationResult)
 
 
-SYSTEM_PROMPT = (
-    "You are the Adjudicator for a Veeva CRM/Vault Solution Function dedup pass.\n"
-    "You receive a PROPOSED Solution Function and one or more CANDIDATE existing\n"
-    "registry functions that share strong component-group overlap (Jaccard >= 0.8)\n"
-    "but lack corroborating name/object similarity. Decide whether the PROPOSED\n"
-    "function is the SAME business function as any one CANDIDATE (merge) or a\n"
-    "distinct function (no merge).\n\n"
-    "Rules:\n"
-    "- \"Same business function\" means they describe the same business outcome and\n"
-    "  functionality, even if named or phrased differently.\n"
-    "- If merge, set canonical_id to the candidate id that is the best canonical\n"
-    "  survivor (richest description / most component groups / earliest id).\n"
-    "- If no candidate is the same function, set merge=false and canonical_id=\"\".\n"
-    "- Component-group overlap alone does not prove sameness; use the business\n"
-    "  descriptions and names as the primary semantic signal.\n"
-)
+SYSTEM_PROMPT = get_system_prompt("adjudicator_system")
 
 
 def _format_prompt(proposed: dict, candidates: list) -> str:

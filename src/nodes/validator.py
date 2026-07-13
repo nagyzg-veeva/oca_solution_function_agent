@@ -5,6 +5,7 @@ from src.state.schema import DomainState
 from src.vector_store import registry
 from src.dedup.scorer import score_pair, tier, Tier
 import json
+from src.prompts.loader import get_system_prompt
 
 class ValidatorOutput(BaseModel):
     is_valid: bool = Field(description="True if the proposed functions pass criteria 1 (No Orphans) and 2 (Business Intent & Granularity).")
@@ -124,15 +125,7 @@ def validator_node(state: DomainState) -> Dict[str, Any]:
         print(f"   [Validator] NOTE: {note}")
 
     # --- Criteria 1 & 2: LLM judgement (overlap explicitly excluded) ---
-    system_prompt = (
-        "You are the Validator Critic for a Veeva CRM/Vault Migration tool.\n"
-        "Evaluate the proposed Solution Functions against these two criteria ONLY:\n\n"
-        "1. No Orphans: All Component Groups from the Input Candidate Domain MUST be assigned to at least one Proposed Solution Function.\n"
-        "2. Business Intent & Granularity: Descriptions MUST focus on business outcomes AND MUST include a clear, itemized list of the discrete functionalities the Solution Function provides. REJECT descriptions that are purely high-level summaries without detailing the specific business capabilities.\n\n"
-        "Do NOT consider registry overlap or semantic similarity to existing functions; that is evaluated separately by the system.\n\n"
-        "If BOTH criteria pass, set is_valid to True and feedback to 'Approved.'\n"
-        "If EITHER criterion fails, set is_valid to False and provide specific, actionable feedback."
-    )
+    system_prompt = get_system_prompt("validator_system")
 
     user_prompt = f"""
 Input Candidate Domain (Must be fully covered):
