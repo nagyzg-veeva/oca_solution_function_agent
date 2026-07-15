@@ -1,103 +1,198 @@
 ID,Name,Description,Primary Objects,ComponentGroups,Complexity Score
-V_68441F0E,Global Account Search & Territory Alignment,"Enables sales representatives to search for accounts and addresses globally and aligns them to appropriate territories based on ZIP codes.
+V_A26FE4E2,Voice of the Customer (VOC) Survey Management,"Manages the end-to-end lifecycle of Voice of the Customer surveys, including metadata configuration, invitation distribution, and response tracking. 
 
-* Allows users to search for accounts and addresses across the entire organization.
-* Filters search results based on dynamic visibility rules.
-* Automatically aligns accounts to territories using ZIP code mapping.
-* Maintains a history of territory alignments for auditing and reporting.","GAS_Alignment_History_vts__c, Address_vod__c, TEVA_Zip_To_Terr__c, GAS_Visibility_Configuration__c, GAS_Hierarchical_Setting__c, Account_Territory_Loader_vod__c","V51000000001001, V51000000002004",512
-V_B75E66F7,Third-Party Logistics Integration Tracking,"Monitors and tracks changes to Healthcare Professional (HCP) demographics and addresses to ensure accurate data synchronization with third-party logistics partners.
+Discrete functionalities include:
+* Configures survey metadata, questions, and active waves.
+* Automates the distribution and resending of survey invitations to targeted participants.
+* Captures and enriches survey responses with additional contextual information.
+* Calculates survey response rates and participation metrics.
+* Provides analytical dashboards for tracking survey uptake and customer feedback.","SurveyInvitation, Survey_Additional_Info__c, Wave__c, Survey_Automation__c, Dashboard_Configuration__c, Survey_Question_Additional_Info__c, Survey_Question_Response_Additional_Info__c, Question_Title__c, Survey_Type__c","V51000000001036, V51000000002028, V51000000001070, V51000000001063, V51000000002023, V51000000002022, V51000000002021, V51000000001068, V51000000001066, V51000000001064, V51000000001062, V51000000001040, V51000000001059, V51000000001060, V51000000001061, V51000000001077, V51000000001078, V51000000002026",995
+V_FFCED216,VOC Consent and Follow-Up Interview Management,"Manages respondent consent and orchestrates follow-up interviews based on survey feedback. 
 
-* Monitors updates to critical account and address information.
-* Automatically captures modification timestamps when specific fields are changed.
-* Facilitates seamless data synchronization with external fulfillment and logistics vendors.","Knipper_Settings__c, Account, Address_vod__c","V51000000001016, V51000000001009",113
-V_209871EA,Data Encryption & Security Services,"Secures sensitive integration identifiers and business keys by encrypting data before it is saved in the system.
+Discrete functionalities include:
+* Tracks and manages customer opt-in and consent for surveys.
+* Automatically generates follow-up interview records based on specific survey responses.
+* Synchronizes customer roles and populates consent fields dynamically.
+* Sends automated email alerts to managers for follow-up interviews.
+* Provides a dedicated interface for managing follow-up discussions and interview responses.","Contact_Consent__c, Interview_Question__c, Interview_Question_Response__c, Interview_Response__c, Interview_Question_Choice__c, Interview__c","V51000000002024, V51000000001069, V51000000001065, V51000000001042, V51000000001067, V51000000001039, V51000000001038, V51000000001037, V51000000002027",1499
+V_502F64DF,Experience Cloud Portal Management,"Provides the foundational infrastructure, authentication, and user experience for public-facing sites and Experience Cloud portals. 
 
-* Encrypts unique business identifiers such as Federation IDs and Brand IDs.
-* Ensures sensitive integration keys are stored securely using base64 encoding.
-* Protects data integrity and confidentiality across account and product records.","Product_vod__c, Account, EncryptedCustomSetting__c","V51000000002022, V51000000001011",8
-V_DBFC3A60,Sandbox Data Masking & Anonymization,"Protects sensitive customer data in non-production environments by masking emails and identifiers, preventing accidental outbound communications during testing.
+Discrete functionalities include:
+* Manages user authentication, login forms, and secure access redirection.
+* Provides self-registration capabilities with dynamic data capture.
+* Supports password recovery and profile management for portal users.
+* Renders standardized site templates, headers, and footers for consistent branding.
+* Displays custom error pages (e.g., 404 Not Found, Maintenance, Unauthorized, Bandwidth Exceeded).",User,"V51000000001017, V51000000001018, V51000000001019, V51000000001020, V51000000001033, V51000000001034, V51000000001035, V51000000001044, V51000000001045, V51000000001046, V51000000002001, V51000000002002, V51000000002003, V51000000002004, V51000000002005, V51000000002006, V51000000002007",154
+V_B8A61F1A,Approval Workflow Management,"Facilitates the review and processing of pending approval requests within the system. 
 
-* Automatically anonymizes customer contact email addresses after a sandbox refresh.
-* Appends invalid suffixes to email addresses to block real email transmissions.
-* Modifies integration identifiers to prevent unintended system integrations during testing.",Account,"V51000000001015, V51000000001008",85
-V_E920EACC,Account Merge & Territory Data Consolidation,"Manages the consolidation of territory and activity data when duplicate account records are merged.
+Discrete functionalities include:
+* Provides a centralized dashboard for users to view pending items requiring their approval.
+* Allows users to approve or reject records with custom comments.
+* Implements specialized approval and rejection overrides for specific events (e.g., Veeva EM Events).",ProcessInstanceWorkitem,"V51000000001010, V51000000001011, V51000000001012",58
+V_60E7ABAB,Event Budget Monitoring,"Monitors event budgets and triggers automated alerts based on expense thresholds. 
 
-* Aggregates territory alignment records during an account merge.
-* Consolidates territory-specific field data, including year-to-date activities.
-* Ensures historical call and activity data is preserved and accurately reflected on the surviving account record.","TSF_vod__c, Account_Territory_Loader_vod__c",V51000000001007,95
-V_B2C8E670,Territory Activity Calculation,"Calculates and maintains year-to-date call activity metrics for sales territories.
+Discrete functionalities include:
+* Tracks actual expenses against total allocated event budgets.
+* Sends automated email notifications when expenses reach 75% of the budget.
+* Sends automated email notifications when expenses reach 90% of the budget.",EM_Budget_vod__c,"V51000000002029, V51000000002030",2
+V_0E8BA54D,Territory and Customer Intelligence,"Provides field users with actionable insights, territory planning tools, and customer profiles through specialized dashboards. 
 
-* Automatically calculates year-to-date call activity levels based on logged interactions.
-* Resets activity metrics according to the current calendar year.
-* Provides sales teams with accurate, up-to-date visibility into territory engagement levels.","TSF_vod__c, Call2_vod__c",V51000000002002,7
-V_8BDD524B,External System Schema API,"Provides an integration endpoint that exposes system schema details to external applications for data archiving and synchronization. Features include:
-- Exposing field properties and profile schemas via a secure API endpoint.
-- Allowing external applications to dynamically build compliant database tables.
-- Facilitating seamless data archiving and external reporting capabilities.",,V51000000001019,7
-V_730C599F,Educational Call Resource Tracking,"Enables field representatives to log and track educational materials shared with medical professionals during interactions. Features include:
-- Allowing representatives to register digital literature, posters, or videos provided during a call.
-- Providing a guided interface for identifying and selecting disseminated resources.
-- Enhancing compliance and reporting on educational material distribution.",,V51000000001020,0
-V_E03B5FA2,Remote Meeting Splash Screens,"Manages the display of splash screens and introductory visuals for remote meetings and virtual engagements. Features include:
-* Providing customizable splash screens for remote meeting sessions.
-* Enhancing the professional appearance of virtual engagements with healthcare professionals.
-* Supporting multiple variations of introductory screens for different meeting types.",,"V51000000001021, V51000000001022, V51000000001023, V51000000001024, V51000000001025, V51000000001026, V51000000001027, V51000000001028, V51000000001029, V51000000001030, V51000000001031, V51000000001032, V51000000001033, V51000000001034",0
-V_AFFC864E,Sync Tracking Maintenance,"Manages the cleanup and maintenance of synchronization tracking schedules to ensure optimal system performance. Features include:
-* Automatically removing outdated or unnecessary synchronization tracking schedules.
-* Optimizing system performance by clearing legacy sync data.
-* Ensuring background synchronization processes run efficiently.",,V51000000002019,0
-V_DE2B02A5,Metadata Package Management,"Facilitates the organization, retrieval, and packaging of system metadata components for deployment and version control.
+Discrete functionalities include:
+* Displays territory-level intelligence and performance metrics.
+* Provides customer profile insights and medical pipeline data.
+* Supports cycle plan actions and pre-call preparation workflows.
+* Integrates Veeva Link insights for enhanced territory and profile visibility.","Account, Call2_vod__c","V51000000001079, V51000000001080, V51000000001081, V51000000001082, V51000000001083, V51000000001084, V51000000001085, V51000000001086, V51000000001087, V51000000001088, V51000000002046, V51000000002047, V51000000002048, V51000000002049, V51000000002050, V51000000002051, V51000000002052",0
+V_886A9AA8,Integration Log Management,"Maintains system health by managing and archiving integration logs. 
 
-* Provides a user interface to track and manage metadata components linked to specific development branches.
-* Retrieves specified metadata components and stores them as compressed files for easy transfer.
-* Consolidates metadata from multiple branches into a single parent package to streamline deployments.
-* Builds custom manifests by linking selected org metadata components to a parent package record.","Branch_Component__c, Branch__c, Package_Component__c, Package__c","V51000000001002, V51000000001005, V51000000001004, V51000000001006, V51000000001003",395
-V_05108BA9,Veeva Sync and Tracking Management,"Manages the configuration and scheduling of data synchronization between Veeva CRM and offline devices to ensure data consistency.
+Discrete functionalities include:
+* Identifies integration log records that exceed a specified retention period.
+* Automatically deletes outdated logs to optimize storage and system performance.",PS_to_CRM_Log_MVN__c,V51000000001007,2
+V_FBF4965E,Apex Trigger Administration,"Provides administrative tools for managing and generating system triggers. 
 
-* Configures synchronization settings for critical CRM data, including sample limits.
-* Manages and schedules sync tracking processes to monitor data flow.
-* Allows administrators to delete or modify sync tracking schedules to optimize system performance.",Sample_Limit_vod__c,"V51000000001014, V51000000002019",114
-V_4DD50DC6,Educational Call Resource Management,"Empowers clinical representatives to manage and register educational materials shared with medical professionals during calls. Features include:
-* Allowing users to register digital literature, posters, or videos disseminated during educational calls.
-* Assisting field representatives with identifying and tracking specific educational resources utilized.
-* Enhancing compliance and reporting by maintaining a record of shared materials.",,V51000000001020,0
-V_CFFF18CE,Remote Meeting Experience Management,"Manages the visual and interactive elements of remote meetings to provide a professional and branded experience for healthcare professionals, as well as handling attendee data. Features include:
-- Providing customizable splash screens for remote meetings.
-- Enhancing the waiting room experience for attendees joining virtual calls.
-- Supporting the display of branding, instructions, or compliance messaging before a remote meeting begins.
-- Managing remote meeting attendee data and triggering related business logic upon attendee updates.",Remote_Meeting_vod__c,"V51000000001021, V51000000001022, V51000000001023, V51000000001024, V51000000001025, V51000000001026, V51000000001027, V51000000001028, V51000000001029, V51000000001030, V51000000001031, V51000000001032, V51000000001033, V51000000001034, V51000000002021",21
-V_C887E5DA,Field Coaching Report Management,Manages the end-to-end lifecycle of field coaching reports for sales leadership. Features include: - Coordinating the creation and finalization of coaching sessions. - Managing attachment-level validation and locking mechanisms. - Handling ownership record sharing and status modifications for employee coaching reports. - Facilitating archival data pull-forwards for historical coaching data.,"TEVA_Settings__c, Coaching_Report_vod__c","V51000000001017, V51000000002001",77
-V_6EB7201D,Sample Lot Catalog Synchronization,"Maintains accurate and up-to-date sample inventory records by synchronizing master catalog data with individual sample lots. Features include: 
-- Automatically cascading updates made to active flags, unit-of-measure values, or expiration dates from the Lot Catalog to matching Sample Lots. 
-- Ensuring data consistency across the sample management process. 
-- Reducing manual data entry and preventing compliance discrepancies in sample inventory.","Sample_Lot_vod__c, Lot_Catalog_vod__c",V51000000002003,45
-V_9B6AB0DE,Multichannel Consent Management,"Manages the capture and processing of consent for multichannel communications. Features include:
-* Automating consent processing for multichannel communications.
-* Ensuring compliance with data privacy regulations by tracking consent status.
-* Triggering updates based on changes to multichannel consent records.",Multichannel_Consent_vod__c,V51000000002020,26
-V_C423BDA1,External System Integration & Archiving,"Facilitates the integration between Salesforce and external archiving systems like Heroku. Features include:
-* Providing an integrated API endpoint that exposes field properties and profile schemas.
-* Allowing external applications to build schema-compliant database tables for archiving purposes.
-* Ensuring data structure consistency between Salesforce and external data stores.",,V51000000001019,7
-V_D91C2C4B,Data Synchronization Management,"Manages the scheduling and tracking of data synchronization processes. Features include:
-* Allowing administrators or automated processes to delete or reset sync tracking schedules.
-* Ensuring accurate tracking of data synchronization between offline devices and the server.
-* Maintaining system performance by clearing outdated synchronization logs or schedules.",,V51000000002019,0
-V_575DC9D9,Medical Insight Management,"Automates and orchestrates the lifecycle of medical insights captured by field medical teams. Features include:
-- Automatically date-stamping manager and director approvals.
-- Copying relevant fields and locking record types to ensure data integrity.
-- Triggering safety escalation alerts based on insight severity.
-- Facilitating internal handoffs and managing review dates.
-- Formatting data attributes and handling transition updates for seamless processing.",Medical_Insight_vod__c,"V51000000001010, V51000000002023",4
-V_A25C3967,Medical Inquiry Management,"Manages the lifecycle, fulfillment, and system integration of medical inquiries. Features include:
-* Synchronizing case snapshot details from manually created medical inquiries to their corresponding fulfillment records.
-* Supporting bi-directional integration between Veeva CRM and Veeva Vault for medical information inquiries.
-* Routing pending inquiries to appropriate teams or systems.
-* Aligning territory access vectors and managing user assignments on medical request objects to ensure proper visibility and handling.","Medical_Inquiry_vod__c, Medical_Inquiry_Fulfillment_vod__c, User","V51000000001012, V51000000002024",0
-V_661B0B9F,User Profile Management,"Automates the management and standardization of user profile information. Features include:
-* Automatically generating custom email addresses based on user first and last name inputs.
-* Updating user records with constructed email addresses to ensure standardized communication channels across the organization.",User,V51000000001013,0
-V_A49007FC,Educational Call Resource Management,"Empowers clinical representatives to manage and register educational materials shared with medical professionals during calls. Features include:
-* Allowing users to register digital literature, posters, or videos disseminated during educational calls.
-* Assisting field representatives with identifying and tracking specific educational resources utilized.
-* Enhancing compliance and reporting by maintaining a record of shared materials.",,V51000000001020,0
+Discrete functionalities include:
+* Identifies Salesforce objects that lack specific required triggers.
+* Programmatically generates and deploys trigger code from predefined templates.",ApexTrigger,V51000000001015,10
+V_24EE6F22,Veeva CRM Call Report Embedding,"Integrates external Veeva CRM call reporting interfaces directly into the Salesforce environment. 
+
+Discrete functionalities include:
+* Authenticates and loads external AngularJS-based resources from Veeva servers.
+* Renders the Veeva CRM Call Report interface within standard Salesforce page layouts.",Call2_vod__c,V51000000002020,0
+V_929D720C,Task Management,"Automates the categorization and display of user tasks. 
+
+Discrete functionalities include:
+* Automatically updates the Record Type of tasks based on specific subject criteria (e.g., HCP contact requests).
+* Renders standard task detail views and manages the display of task-related lists and buttons.",Task,"V51000000002039, V51000000001047",0
+V_59B7A7F9,Haystack Integration & Signal Management,"Integrates Veeva CRM with the external Haystack platform to synchronize patient and HCP diagnostic signals and manage territory alignments. 
+
+Discrete functionalities include:
+* Synchronizes patient clinical signals with verified HCP and Treating Site accounts.
+* Routes signal record ownership based on territory alignment and geographic data.
+* Automatically generates and assigns Veeva Suggestions for medical and sales representatives based on incoming signals.
+* Updates 'Rare Sales' and 'TTR Sales' flags on US Person Accounts based on signal data.
+* Provides a REST API endpoint for external systems to bulk upsert records into the staging object.","Signal_MVN__c, Account, Haystack_Sync_Staging_MVN__c, Suggestion_vod__c","V51000000001001, V51000000002017, V51000000002016, V51000000001041, V51000000001008, V51000000001004, V51000000001003, V51000000001002",1209
+V_0066D301,EPPV & PI Call Objective Management,"Automates the lifecycle, scheduling, and tracking of Early Post-Marketing Phase Vigilance (EPPV) and Product Information (PI) Call Objectives. 
+
+Discrete functionalities include:
+* Automatically creates and schedules Call Objectives for Business Event Targets.
+* Closes uncompleted Call Objectives when a related Business Event Target is stopped.
+* Manages the deletion of Business Event Targets and prevents deletion if associated Call Objectives are completed.
+* Automates the completion and cancellation of EPPV and PI Call Objectives upon Call submission.
+* Sends automated daily notifications and warnings for active Call Objectives approaching deadlines.
+* Generates EPPV Hospital Progress Reports to track target hospitals and completed call objectives.
+* Reassigns ownership of Call Objectives during EPPV events when the current owner loses territory access.","Call_Objective_vod__c, Business_Event_Target_vod__c, Call2_vod__c","V51000000002041, V51000000001024, V51000000001023, V51000000001022, V51000000001021, V51000000001014, V51000000001013, V51000000001005, V51000000002040, V51000000001025, V51000000001006",681
+V_58A38A7D,OneTrust Consent Integration,"Integrates Veeva CRM with OneTrust to synchronize data privacy consent and opt-in/opt-out preferences. 
+
+Discrete functionalities include:
+* Synchronizes Multichannel Consent record creation and updates with OneTrust via asynchronous callouts.
+* Updates the related Account's consent status field when a Multichannel Consent record is modified.
+* Synchronizes Person Account creation and email updates with OneTrust to maintain accurate consent profiles.","Multichannel_Consent_vod__c, Account","V51000000002034, V51000000002012, V51000000001026, V51000000002013",174
+V_01E2764A,Product Metrics & PDRP Cleansing,"Manages Product Metrics data and automatically cleanses prescription and targeting data for PDRP Opt-Out accounts. 
+
+Discrete functionalities include:
+* Automatically clears sales and targeting data fields on Product Metric records when an Account opts out of PDRP.
+* Generates and populates unique External IDs for Product Metric records by concatenating Account and Product IDs.
+* Generates and populates VID External IDs for Product Metric records.","Product_Metrics_vod__c, Account","V51000000001076, V51000000001050, V51000000001049, V51000000001075, V51000000001073",8
+V_8B19AA5C,Scientific Exchange Request Form (SERF) Management,"Manages the lifecycle and tracking of Scientific Exchange Request Forms (SERF). 
+
+Discrete functionalities include:
+* Identifies SERF records expiring within 30 days and sends automated email and custom notifications to the record owner.
+* Increments the number of SERFs on an Account when a Veeva Call with a 'Scientific Exchange' activity type is submitted.","ALNY_Scientific_Exchange_Request_Form__c, Call2_vod__c","V51000000001071, V51000000002045",8
+V_0FCCDC18,Medical Inquiry Management,"Automates notifications and field updates for Medical Inquiry records. 
+
+Discrete functionalities include:
+* Automatically creates an iPad Alert for the inquiry owner when a Medical Inquiry is closed.
+* Populates standard Email and Phone Number fields from the related Account when a Medical Inquiry is submitted with a 'Speak to Medical' delivery method.","Medical_Inquiry_vod__c, Alert_vod__c","V51000000001055, V51000000001054",6
+V_AA7ECBD2,Sample Order Management,"Automates notifications for specific sample order transactions. 
+
+Discrete functionalities include:
+* Sends automated email notifications when a new sample order is created for specific products and regions (e.g., AMVUTTRA Syringe in Germany).","Sample_Order_Transaction_vod__c, Call2_Sample_vod__c",V51000000001032,69
+V_1D8787C9,Approval Process Management,"Provides custom interfaces and dashboards for managing Salesforce approval requests. 
+
+Discrete functionalities include:
+* Displays a custom 'Items to Approve' dashboard aggregating pending approval requests for the current user.
+* Provides a custom interface to override standard approval UI, allowing users to approve or reject records with custom comments.
+* Implements specialized approval and rejection overrides for Veeva EM Event records.",ProcessInstanceWorkitem,"V51000000001010, V51000000001011, V51000000001012",58
+V_82603800,Experience Cloud Authentication & Registration,"Manages user authentication, self-registration, and profile management for Salesforce Experience Cloud sites. 
+
+Discrete functionalities include:
+* Provides a custom login form and handles secure authentication.
+* Provides a configurable self-registration form that creates portal users and captures dynamic user data.
+* Provides a custom 'Forgot Password' interface to trigger password reset emails.
+* Allows authenticated portal users to view and update their personal profile details and change their password.
+* Redirects users to appropriate start pages based on their authentication status and target destination.","User, Network","V51000000001017, V51000000001018, V51000000001033, V51000000001034, V51000000001035, V51000000002003, V51000000002005, V51000000002006, V51000000002007",154
+V_FF7EDED4,Experience Cloud Error & Maintenance Pages,"Provides custom error and maintenance landing pages for Salesforce Sites and Experience Cloud. 
+
+Discrete functionalities include:
+* Displays a custom '404 Page Not Found' error page for invalid URLs.
+* Displays a 'Bandwidth Limit Exceeded' message when site limits are reached.
+* Displays a standard 'In Maintenance' or 'Under Construction' landing page during site updates.
+* Displays dynamic error messages and warning icons for general exceptions.",Site,"V51000000001019, V51000000001020, V51000000002001, V51000000002002, V51000000002004",0
+V_F99F813E,Salesforce Standard Page Redirects & Layouts,"Manages standard page redirects and layout templates for Salesforce Communities and standard objects. 
+
+Discrete functionalities include:
+* Automatically redirects users to standard Salesforce Ideas and Answers home pages.
+* Provides a layout template for Experience Cloud sites that disables default headers and sidebars.
+* Renders the standard record detail view for Tasks, displaying all fields and related lists.","Task, Idea, Question","V51000000001044, V51000000001045, V51000000001046, V51000000001047",0
+V_5E7CDFBE,Customer Survey & Feedback Management,"Collects and manages customer feedback through Salesforce Surveys and automated follow-ups. 
+
+Discrete functionalities include:
+* Presents Net Promoter Score (NPS) and customer satisfaction rating questions with open-ended text fields.
+* Collects feedback from healthcare partners regarding their experience with Health System Directors and Medical Outcomes Science Liaisons.
+* Resends survey invitation emails to contacts via automated flows.
+* Triggers follow-up interview email alerts for specific contact consent records.","Survey, SurveyInvitation, Contact_Consent__c","V51000000001059, V51000000001060, V51000000001061, V51000000001077, V51000000001078, V51000000002026, V51000000002027",40
+V_C8047939,Veeva CRM External Component Embedding,"Embeds external Veeva CRM functionality into Salesforce. 
+
+Discrete functionalities include:
+* Handles authentication and dynamic loading of AngularJS-based resources from Veeva servers.
+* Renders specific application features, such as Call Reports, within the Salesforce interface.",Call2_vod__c,V51000000002020,0
+V_1C79B303,MC Cycle Detail Group Management,"Automates the population of Detail Group information on MC Cycle Products. 
+
+Discrete functionalities include:
+* Automatically populates the Detail Group field with the product's ID when the associated product is a 'Detail Group'.","MC_Cycle_Product_vod__c, Product_vod__c",V51000000002038,0
+V_DC0754C7,Clinical Trial Site Alignment,"Automates the alignment of Clinical Trial records with Account sites. 
+
+Discrete functionalities include:
+* Automatically updates the Clinical Trial Site lookup field by searching for an Account record with a matching Site Number.","ALNY_HTN_Clinical_Trial__c, Account",V51000000001072,1
+V_B50F089D,HCP Lead Rank Management,"Automates the population of external identifiers for HCP Lead Rank records. 
+
+Discrete functionalities include:
+* Automatically updates the External ID field on HCP Lead Rank records by copying the Network External ID from the related HCP Account.","ALNY_HCP_Lead_Rank__c, Account",V51000000001074,0
+V_AB3F0131,Account Purchase Notification,"Automates email notifications for first product purchases and cancellations. 
+
+Discrete functionalities include:
+* Triggers automated email alerts when 'First Shipment' date fields for specific products are updated on an Account record.",Account,V51000000001057,30
+V_C81573D8,Zenflow Integration Flag Management,"Automates the updating of Zenflow integration flags on Account records. 
+
+Discrete functionalities include:
+* Automatically updates the Zenflow Integration Flag on the Primary Parent Account when a Professional record type Account has its flag set to true.",Account,V51000000001056,1
+V_8C68390C,Account Name Modification Control,"Enforces data governance by restricting modifications to Account name fields. 
+
+Discrete functionalities include:
+* Prevents non-System Administrators from modifying Account name fields (Name, FirstName, LastName, etc.) for specific record types.",Account,V51000000001051,26
+V_DF279311,Legitimate Lead Development Tracking,"Automates the tracking of modifications to Legitimate Lead Development processes. 
+
+Discrete functionalities include:
+* Automatically updates the Legit Lead Modified Date field with the current date whenever the Legit Lead Development Process field is modified.",Account,V51000000002032,0
+V_6DC1C35A,AlnylamConnect Task Routing,"Automates the categorization of specific AlnylamConnect tasks. 
+
+Discrete functionalities include:
+* Automatically updates a Task's Record Type when it is created or updated with a specific subject related to new HCP requests.",Task,V51000000002039,0
+V_FADAE05D,Patient and Survey Field Representative Assignment,"Automates the assignment of field representatives to Patient and Survey records. 
+
+Discrete functionalities include:
+* Automatically assigns field representatives (BAE, RBD, FRD) to Patient records based on the associated Physician's zip code and drug program.
+* Automatically assigns field representatives to Survey records by matching the associated Physician's zip code to territory alignments.","Patient_MVN__c, ALNY_Schwartz_Survey__c, Zip_to_Terr_vod__c","V51000000002014, V51000000002015",57
+V_2687C5F7,Patient Activity Alert Generation,"Automates the generation of alerts for new patient activities. 
+
+Discrete functionalities include:
+* Automatically generates Veeva Alerts and associated User Actions when new Patient Activity records are created.","Patient_Activity_MVN__c, Alert_vod__c",V51000000002009,83
+V_7140882E,On-Treatment Patient Calculation,"Calculates and aggregates patient treatment statistics for prescribing organizations. 
+
+Discrete functionalities include:
+* Calculates and updates the total number of 'on treatment' patients for related Account records based on patient status changes.","Patient_MVN__c, Account",V51000000002010,11
+V_64B6FDAD,External Data Synchronization Management,"Manages the synchronization of data between Salesforce CRM and external systems, ensuring data consistency and maintaining integration logs. 
+
+Discrete functionalities include:
+* Synchronizes Task completions with external systems (e.g., MARS) via REST API.
+* Performs one-way synchronization of external source data into Salesforce CRM records based on custom metadata mappings.
+* Automatically cleans up and deletes outdated integration log records based on configurable retention periods.","PS_to_CRM_Log_MVN__c, Task","V51000000001031, V51000000002025, V51000000001007",272

@@ -6,7 +6,7 @@ between graph.py and validator.py.
 """
 
 # Number of failed validations allowed before falling back to human review.
-MAX_RETRIES = 3
+MAX_RETRIES = 30
 
 # Component-group Jaccard threshold (symmetric overlap) at or above which a
 # proposed function is considered a structural near-duplicate of an existing
