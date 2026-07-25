@@ -16,8 +16,12 @@ class SolutionFunctionModel(BaseModel):
 class SynthesizerOutput(BaseModel):
     proposed_functions: list[SolutionFunctionModel] = Field(description="List of proposed solution functions derived from the candidate domain.")
 
-# Initialize LLM
-llm = ChatGoogleGenerativeAI(model="gemini-3.1-pro-preview", temperature=0.2)
+# Initialize LLM. temperature=0.0: on retries the synthesizer must make
+# *minimal, targeted* edits to its prior proposal (apply merges, fix feedback)
+# rather than re-derive the decomposition from scratch. Any drift in names /
+# component-group assignments between passes re-triggers overlap detection and
+# prevents the Builder-Critic loop from converging, so determinism matters here.
+llm = ChatGoogleGenerativeAI(model="gemini-3.1-pro-preview", temperature=0.0)
 structured_llm = llm.with_structured_output(SynthesizerOutput)
 
 def synthesizer_node(state: DomainState) -> Dict[str, Any]:
@@ -28,14 +32,33 @@ def synthesizer_node(state: DomainState) -> Dict[str, Any]:
     candidate_domain = state.get("candidate_domain", [])
     validation_feedback = state.get("validation_feedback", "")
     registry_matches = state.get("registry_matches", [])
-    
+    prior_functions = state.get("proposed_functions", [])
+    is_retry = bool(prior_functions)
+
     # Construct the prompt
     system_prompt = get_system_prompt("synthesizer_system")
-    
+
     user_prompt = f"Here is the Candidate Domain (list of component groups):\n{json.dumps(candidate_domain, indent=2)}\n"
-    
+
+    if is_retry:
+        # Feed the prior proposal back so this pass is an incremental EDIT, not a
+        # regeneration. Without this the synthesizer is stateless: it re-derives
+        # a different decomposition each loop, so merge directives point at
+        # functions it no longer produces and new overlaps keep appearing — the
+        # loop never converges. Keep untouched functions byte-for-byte identical
+        # (same id, name, description, component_groups) so the validator's
+        # already-resolved short-circuit holds.
+        user_prompt += (
+            "\nYour PREVIOUS proposal (revise this — do NOT start over):\n"
+            f"{json.dumps(prior_functions, indent=2)}\n"
+            "\nApply ONLY the targeted changes below. Every function not "
+            "referenced by the feedback or the Required Merges MUST be returned "
+            "UNCHANGED — identical solution_function_id, name, description, "
+            "primary_objects, and component_groups.\n"
+        )
+
     if validation_feedback:
-        user_prompt += f"\nPrevious Validation Feedback (Fix these issues):\n{validation_feedback}\n"
+        user_prompt += f"\nValidation Feedback (fix exactly these issues):\n{validation_feedback}\n"
 
     if registry_matches:
         user_prompt += (
@@ -44,7 +67,11 @@ def synthesizer_node(state: DomainState) -> Dict[str, Any]:
             f"and component groups):\n{json.dumps(registry_matches, indent=2)}\n"
         )
 
-    user_prompt += "\nPlease propose the Solution Functions based on these guidelines."
+    user_prompt += (
+        "\nReturn the updated proposal."
+        if is_retry
+        else "\nPlease propose the Solution Functions based on these guidelines."
+    )
     
     print(f"   [Synthesizer] Calling LLM with Candidate Domain ({len(candidate_domain)} groups)...")
     

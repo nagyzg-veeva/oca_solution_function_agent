@@ -74,10 +74,15 @@ def adjudicator_node(state: DomainState) -> Dict[str, Any]:
 
     existing_matches = state.get("registry_matches", [])
     new_merges = []
+    new_no_merges = []
 
     for entry in gray_zone:
         proposed = entry["proposed"]
         candidates = entry["candidates"]
+        proposed_name = proposed.get("name", "")
+        candidate_ids = [
+            (c.get("solution_function_id") or c.get("id", "")) for c, _ in candidates
+        ]
 
         print(f"   [Adjudicator] Adjudicating '{proposed.get('name', '')}' "
               f"against {len(candidates)} candidate(s)...")
@@ -106,6 +111,12 @@ def adjudicator_node(state: DomainState) -> Dict[str, Any]:
                 print(f"   [Adjudicator] WARN: merge=True but canonical_id "
                       f"'{result.canonical_id}' not in candidates; no directive emitted.")
         else:
+            # Distinct from every candidate: remember it so the validator does
+            # not re-defer this same pair on a later retry.
+            new_no_merges.extend(
+                {"proposed_name": proposed_name, "candidate_id": cid}
+                for cid in candidate_ids
+            )
             print(f"   [Adjudicator] NO MERGE: '{proposed.get('name', '')}' "
                   f"({result.rationale})")
 
@@ -117,6 +128,8 @@ def adjudicator_node(state: DomainState) -> Dict[str, Any]:
         "gray_zone_pairs": [],
         "is_valid": is_valid,
     }
+    if new_no_merges:
+        update["resolved_no_merges"] = new_no_merges
     if new_merges:
         update["retry_count"] = 1
 

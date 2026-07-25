@@ -35,6 +35,13 @@ class DomainState(TypedDict):
     # Adjudicator clears to [] after resolving.
     gray_zone_pairs: List[dict]
 
+    # Adjudicator memory: (proposed_name, candidate_id) pairs the Adjudicator
+    # has already ruled NO-MERGE on. The Validator consults this set so a pair
+    # that was ruled distinct is never re-deferred on a later retry (which would
+    # cost a repeat Adjudicator LLM call to reach the same verdict).
+    # operator.add reducer accumulates entries across passes.
+    resolved_no_merges: Annotated[List[dict], operator.add]
+
     # Loop control: count of failed validations (retries) so far.
     # operator.add reducer accumulates the +1 the validator returns on failure.
     retry_count: Annotated[int, operator.add]

@@ -35,7 +35,7 @@ def _build_directive(proposed: dict, candidate: dict, score) -> dict:
     }
 
 
-def _detect_overlaps(proposed_functions):
+def _detect_overlaps(proposed_functions, resolved_no_merges=None):
     """
     Multi-signal Registry Overlap check (rubric criterion 3).
 
@@ -54,10 +54,19 @@ def _detect_overlaps(proposed_functions):
     Loop terminator (Q9): a proposed function already carrying a non-empty
     solution_function_id has been resolved in a prior pass; skip registry
     scanning for it entirely. Only criteria 1&2 (LLM) still apply.
+
+    Adjudicator memory: (proposed_name, candidate_id) pairs the Adjudicator has
+    already ruled NO-MERGE on are skipped for the gray zone, so a distinct pair
+    is never re-deferred (and re-adjudicated) on a later retry.
     """
     auto_merges = []
     gray_zone = []
     notes = []
+
+    resolved = {
+        (r.get("proposed_name", ""), r.get("candidate_id", ""))
+        for r in (resolved_no_merges or [])
+    }
 
     for func in proposed_functions:
         if func.get("solution_function_id"):
@@ -68,12 +77,16 @@ def _detect_overlaps(proposed_functions):
         prop_gray = []
 
         for cid, candidate in registry.items():
+            candidate_id = candidate.get("solution_function_id", candidate.get("id", ""))
             score = score_pair(func, candidate)
             t = tier(score)
 
             if t == Tier.AUTO_MERGE:
                 prop_auto.append((candidate, score))
             elif t == Tier.GRAY_ZONE:
+                if (func.get("name", ""), candidate_id) in resolved:
+                    # Adjudicator already ruled these distinct; don't re-defer.
+                    continue
                 prop_gray.append((candidate, score))
                 notes.append(
                     f"'{func['name']}' gray-zone vs '{candidate.get('name', '')}' "
@@ -118,9 +131,10 @@ def validator_node(state: DomainState) -> Dict[str, Any]:
     """
     proposed_functions = state.get("proposed_functions", [])
     candidate_domain = state.get("candidate_domain", [])
+    resolved_no_merges = state.get("resolved_no_merges", [])
 
     # --- Criterion 3: code-authoritative overlap detection ---
-    auto_merges, gray_zone, notes = _detect_overlaps(proposed_functions)
+    auto_merges, gray_zone, notes = _detect_overlaps(proposed_functions, resolved_no_merges)
     for note in notes:
         print(f"   [Validator] NOTE: {note}")
 

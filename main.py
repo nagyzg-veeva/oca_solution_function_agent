@@ -52,7 +52,8 @@ def main():
             "validation_feedback": "",
             "is_valid": False,
             "proposed_functions": [],
-            "registry_matches": []
+            "registry_matches": [],
+            "resolved_no_merges": []
         }
         
         # Invoke the graph
