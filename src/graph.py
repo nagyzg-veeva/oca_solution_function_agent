@@ -64,5 +64,6 @@ builder.add_edge("write_to_vault", END)
 memory = MemorySaver()
 app = builder.compile(checkpointer=memory)
 
-print(app.get_graph().draw_mermaid())
+if __name__ == "__main__":
+    print(app.get_graph().draw_mermaid())
 

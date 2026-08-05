@@ -6,14 +6,13 @@ load_dotenv()
 
 import pprint
 import config.config as config
-from src.tools.vault_tools import get_component_groups
+from src.tools.vault_tools import get_component_groups, load_component_groups_from_csv
 from src.graph import app
 from src.nodes.vault import hydrate_registry_from_csv, CSV_FILE
 from langgraph.types import Command
 
 def main():
     print("Hello from oca!")
-    print(f"Connecting to Vault: {config.VAULT_HOSTNAME}")
 
     n = hydrate_registry_from_csv()
     if not os.path.isfile(CSV_FILE):
@@ -23,9 +22,15 @@ def main():
     else:
         print(f"Loaded {n} existing Solution Functions into registry from CSV.")
 
-    print("Fetching Component Groups from Vault...")
-    result = get_component_groups()
+    if config.USE_CSV_INPUT or not config.VAULT_HOSTNAME:
+        print("📄 Mode: Offline CSV Input (loading component_groups.csv)")
+        result = load_component_groups_from_csv("component_groups.csv")
+    else:
+        print(f"⚡ Mode: Vault Query ({config.VAULT_HOSTNAME})")
+        result = get_component_groups()
+
     candidate_domains = result.get("component_groups", [])
+
     
     # Sort candidate domains by total complexity descending
     def get_domain_complexity(domain):

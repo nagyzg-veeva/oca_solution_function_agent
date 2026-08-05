@@ -1,98 +1,49 @@
 ID,Name,Description,Primary Objects,ComponentGroups,Complexity Score
-V_BA8DC372,Account & Territory Management,"Manages the lifecycle, alignment, and core attributes of HCP and HCO accounts to ensure accurate targeting and compliance.
+V_1172FB01,Territory Budget Management,"Provides capabilities to manage and allocate budgets across territories and regions.
 
-* Automatically populates target owners on Person Accounts based on territory associations.
-* Calculates and assigns primary territories and field ownership using direct sales alignments.
-* Assesses HCP specialties and credentials to automatically allocate appropriate record types.
-* Oversees postal alignments and synchronizes address statuses with parent accounts.
-* Tracks contact consent indicators and automates do-not-call flags based on expired permissions.
-* Updates Key Opinion Leader (KOL) attributes on accounts following MSL interactions.","Account, Account_Territory_Loader_vod__c, Zip_to_Terr_vod__c, HYB_SymphonyData__c, HYB_Inclusion_Specialty_CNX__c, HYB_Excluded_Specialty_CNX__c, Address_vod__c, Multichannel_Consent_vod__c, User, Call2_vod__c","V51000000001001, V51000000001012, V51000000001011, V51000000002007, V51000000002010, V51000000001014",560
-V_85F35CBF,Event & Attendee Management,"Provides end-to-end management of medical and commercial events, including speaker allocation and attendee registration.
+* Allows users to view and reallocate funds across regions and sub-territories via a hierarchical interface.
+* Validates budget allocations in real-time to prevent exceeding available funds.
+* Calculates outstanding pending budgets automatically.
+* Clones active Budget Headers and Territory Budgets for upcoming fiscal periods.","Budget_Header_NTR__c, Territory_Budget_vod__c, Rep_Roster_vod__c, Territory_Budget_Transaction_vod__c, Material_Order__c","V51000000001001, V51000000001009",67
+V_0CD620E0,Material and Sample Order Management,"Manages the end-to-end lifecycle of material and sample orders for sales representatives.
 
-* Provides a public-facing web portal for event attendees to register using unique codes.
-* Validates attendee information (e.g., NPI, email) and prevents duplicate registrations.
-* Formats and populates human-readable date and time strings for event records.
-* Manages speaker allocations, validation rules, and dynamic manager assignments for events.
-* Automates system default allocations for attendees and sends confirmation emails and reminders.
-* Captures and saves attendee registration data into custom tracking objects.","EM_Attendee_vod__c, HYB_EMAttendee_Reg__c, EM_Event_vod__c, Account, EM_Event_Speaker_vod__c","V51000000002005, V51000000002009, V51000000002008, V51000000002001, V51000000002004, V51000000002003, V51000000002002",127
-V_64ECD0AB,Partner Integration & Data Sync,"Facilitates data synchronization with external partners for sample management and fulfillment.
+* Allows sales representatives to request product samples and promotional marketing materials.
+* Automates the submission, cancellation, and updates of material orders and line items.
+* Manages shipping addresses and shipping methods for orders.
+* Validates territory budgets and deducts costs from territory allocations.
+* Automates the creation of Material Orders and line items directly from Veeva CRM call records (e.g., BRC samples).
+* Converts units of measure and handles notification alerts for order statuses.","Material_Order__c, Material_Order_Line_Item__c, Territory_Budget_Transaction_vod__c, Product_vod__c, Address_vod__c, Rep_Roster_vod__c, Territory_Budget_vod__c, Shipping_Method_NTR__c, Call2_vod__c, Inventory_Shipping_Address__c, My_Setup_Products_vod__c, Call2_Sample_vod__c","V51000000002001, V51000000001005, V51000000001004, V51000000001003",305
+V_63CD2290,Global Account Search and Alignment,"Provides a global search utility for locating and aligning accounts.
 
-* Systematically updates modification timestamps on Account and Address records.
-* Enables differential data capture for the J. Knipper partner integration streams.","Knipper_Settings__c, Address_vod__c, Account",V51000000002011,35
-V_FBC370AC,Order & Sample Management,"Manages ordering settings and enforces distribution limits for samples and educational materials.
+* Allows users to search for Accounts and associated Addresses using dynamic filters.
+* Enables users to select specific accounts from search results and align them to their territories.
+* Tracks alignment history for auditing and reporting purposes.","GAS_Alignment_History_vts__c, GASSettings__c, Address_vod__c, Account_Territory_Loader_vod__c",V51000000001002,422
+V_373A2860,Account Lifecycle and Hierarchy Management,"Automates administrative tasks related to account maintenance and hierarchy synchronization.
 
-* Assigns default order types based on target Account record criteria.
-* Rolls up the quantity of educational materials (e.g., textbooks) delivered to accounts annually.
-* Enforces business rules by automatically resetting distribution trackers at the start of the year.","Account, Call2_Sample_vod__c, Call2_vod__c","V51000000001019, V51000000001015",3
-V_FAB9A763,Public Site & Portal Infrastructure,"Provides the foundational framework, user authentication, and error handling for public-facing Salesforce Sites and Portals.
+* Handles automated account merges and business unit assignments based on record creator.
+* Drops territory assignments automatically when accounts become inactive.
+* Propagates key targeting and membership properties dynamically from parent accounts to child accounts.","Account, User, Account_Merge__c, Account_Territory_Loader_vod__c, Child_Account_vod__c","V51000000002003, V51000000002002",17
+V_BBD590EA,Marketing Engagement Integration,"Integrates external marketing platforms with CRM to display engagement data.
 
-* Establishes a global site template with consistent branding, headers, and footers.
-* Manages self-registration, user authentication, password recovery, and Single Sign-On (SSO) matching rules for portal users.
-* Enables authenticated users to securely update their profiles and change passwords via a self-service interface.
-* Displays standardized error pages for 404 Not Found, Bandwidth Exceeded, and general exceptions.
-* Provides standard landing pages for site maintenance and under-construction statuses.",,"V51000000001003, V51000000001004, V51000000001005, V51000000001006, V51000000001007, V51000000001008, V51000000001009, V51000000001010, V51000000001016",17
-V_F873C854,System Administration & User Access,"Supports internal system administration, user access management, and UI navigation utilities.
+* Authenticates with external marketing platforms via OAuth.
+* Retrieves and displays external marketing engagement data directly on Account records.
+* Maps specialty categories for targeted marketing insights.","Primary_Speciality_Category_Mappings__c, Category_Mapping_Non_PED__c, Error_Log__c, Account, OAuth_Credentials__c",V51000000001006,147
+V_72D64D41,Call Reporting Interface,"Enhances the user interface for capturing call interactions and provides seamless access to interaction logging directly from the customer profile. Streamlines the process of logging interactions and planning engagements with Healthcare Professionals (HCPs) or organizations directly from their profile. Key functionalities include: * Embeds the Veeva CRM 'New Call' interface directly into the Salesforce Account page for streamlined data entry. * Allows users to quickly capture interaction details, discussions, and interactions without navigating away from the customer record. * Dynamically loads external Veeva modules, handles session authentication, and passes record-specific context automatically to the call report. * Seamlessly integrates the standard Veeva CRM call reporting tool within the account view to reduce navigation time and improve user efficiency.","Account, Call2_vod__c",V51000000001007,0
+V_D45F8FFC,External Application Launchers,"Facilitates seamless navigation to external applications from within the CRM.
 
-* Implements Single Sign-On (SSO) auto-registration rules to match and link incoming users.
-* Restores valid email schemas in sandbox environments to mitigate deliverability locks during testing.
-* Embeds external Veeva CRM web modules (like Call Reports) into standard Visualforce pages.
-* Facilitates visual navigation redirects for internal users accessing standard Ideas and Answers structures.",,"V51000000001016, V51000000001017, V51000000002006, V51000000002012, V51000000002013",41
-V_0F5FC34A,Field Coaching Management,"Manages the lifecycle and workflow of Field Coaching Reports (FCR) to support manager-to-employee coaching and performance tracking.
-
-* Automates coaching report workflow logic and status progression.
-* Copies previous performance metrics into new coaching reports to provide historical context.
-* Locks historical coaching records upon completion to ensure data integrity.
-* Triggers automated notifications to direct reports when coaching reports are approved.","Alert_vod__c, Coaching_Report_vod__c",V51000000001013,14
-V_199B0932,Collaboration & Knowledge Sharing,"Facilitates internal user navigation and access to standard collaboration features such as Ideas and Answers, improving user adoption and experience.
-
-* Provides visual navigation links and redirects to standard Salesforce Ideas lists.
-* Directs users to standard Answers structures and tabs for knowledge sharing and community Q&A.","Idea, Question","V51000000001017, V51000000002013",0
-V_BB7C29F4,Call Reporting Integration,"Embeds external Veeva CRM web modules into standard Salesforce interfaces to provide seamless access to call reporting functionalities and a unified user experience.
-
-* Acts as a bridge to embed Veeva CRM Call Reports directly within Salesforce Account and Visualforce pages.
-* Handles background session authentication for seamless access to embedded external modules without multiple logins.
-* Loads necessary dependencies and stylesheets to render external Veeva interfaces natively within Salesforce.","Account, Call2_vod__c",V51000000002006,0
-V_4DD887D2,Environment & Sandbox Administration,"Provides administrative utilities to support development operations and sandbox environment management.
-
-* Restores valid email schemas automatically in development and test sandboxes post-refresh.
-* Mitigates email deliverability locks by rectifying system-appended '.invalid' email addresses automatically.
-* Streamlines post-copy sandbox configuration tasks for administrators.",,V51000000002012,40
-V_D942519A,Order Promotional Material Validation,"Ensures compliance and accuracy during the order entry process by validating product combinations.
-
-*   Validates order line items to ensure postcards are not combined with other promotional materials.
-*   Automatically cancels irregular orders that violate promotional material combination rules.
-*   Enforces isolation logic for specific product types within the order management process.","Order_Line_vod__c, Order_vod__c, Product_vod__c",V51000000002015,10
-V_30A1D2F3,Portal User Identity and Profile Management,"Manages the lifecycle of portal user identities, ensuring secure access and self-service capabilities. 
+* Provides a mobile-friendly redirect page to launch the Business Card Reader (BCR) Pro application.
+* Displays the Engage Splash Screen for user onboarding or application entry.",,"V51000000001010, V51000000001013",0
+V_BD306EF3,Cycle Planning and Targeting,"Manages the creation, cloning, and synchronization of cycle plans and targets to optimize field force territory management. Key functionalities include: 1) Allows users to perform deep clones of existing Cycle Plans and their associated targets. 2) Synchronizes target indicators on territory field (TSF) records upon cycle plan submission. 3) Streamlines the cycle planning process for field representatives and managers.","Cycle_Plan_vod__c, Cycle_Plan_Target_vod__c, TSF_vod__c","V51000000001008, V51000000002004",31
+V_AB0FEE7A,Business Card Import,"Facilitates the rapid capture of new contact information via mobile scanning tools to reduce manual data entry. Enhances the efficiency of entering new contact information into the CRM by leveraging external scanning tools. Key functionalities include: * Provides a mobile-friendly redirect to seamlessly launch the external Business Card Reader (BCR) Pro application. * Streamlines the process of importing scanned business card data into the CRM to capture new Healthcare Professional (HCP), contact, or account details. * Reduces manual data entry for field representatives when acquiring new leads or contacts. * Facilitates the automated scanning and importing of physical business card details to quickly create or update CRM records.","Contact, Account",V51000000001010,0
+V_D08D0BB6,Engage Meeting Experience,"Manages the user interface elements, entry, and branding experience for remote customer engagements via Veeva Engage. Facilitates digital and remote interactions with Healthcare Professionals through integrated virtual meeting tools. Key functionalities include: * Displays a dedicated splash screen for users joining Veeva Engage meetings. * Provides a branded, professional, and standardized waiting area for participants joining remote meetings. * Enhances the visual experience for users joining or hosting remote interactions and facilitates a seamless transition into active digital engagement sessions with Healthcare Professionals. * Provides a standardized, user-friendly entry point for initiating remote meetings and digital communications with HCPs.","Engage_Meeting_vod__c, Call2_vod__c",V51000000001013,0
+V_18201F01,Territory Business Planning,Supports the strategic planning and management of sales territories. Key functionalities include: - Automatically looks up and assigns active user territory associations to Territory Business Plans. - Ensures territory alignment data is accurately reflected on business planning records. - Streamlines the administrative overhead of maintaining territory assignments on strategic plans.,Territory_Business_Plans__c,V51000000002006,3
+V_20DCD3B8,Sample Inventory Management & SAP Integration,"Manages the synchronization and tracking of sample inventory between Veeva CRM and SAP. This function ensures accurate audit trails for sample orders and receipts. Capabilities include:
+* Monitoring incoming sample receipts within the CRM.
+* Automatically generating corresponding sample transactions for SAP integration logs.
+* Maintaining an accurate, automated audit trail for sample inventory to ensure compliance and stock accuracy.","Sample_Receipt_vod__c, Sample_Transaction_vod__c",V51000000001012,2
+V_C3E17B96,Medical Event Management,"Supports the administration, tracking, and compliance of medical events by maintaining accurate internal ownership data. 
 
 Key functionalities include:
-* Allows users to self-register for portal access.
-* Provides secure login and authentication mechanisms.
-* Enables users to recover forgotten passwords.
-* Allows authenticated users to update their profile information and change passwords.
-* Facilitates Single Sign-On (SSO) by matching incoming SSO assertions to existing user records.",User,"V51000000001003, V51000000001009, V51000000001016",17
-V_259D6D4C,Public Site Experience and Error Handling,"Provides the foundational user interface templates and standard error pages for public-facing Salesforce Sites, ensuring a consistent user experience. 
-
-Key functionalities include:
-* Establishes a consistent, branded layout for site pages using global templates.
-* Displays user-friendly 'File Not Found' (404) error pages.
-* Notifies users when site bandwidth limits have been exceeded.
-* Presents custom exception and error messages gracefully.
-* Informs users when the site is down for maintenance or under construction.",,"V51000000001004, V51000000001005, V51000000001006, V51000000001007, V51000000001008, V51000000001010",0
-V_0C172AD9,System Administration and Environment Management,"Provides utilities for monitoring organization health and managing sandbox environments to support ongoing system administration. 
-
-Key functionalities include:
-* Retrieves and stores current Salesforce organization storage limits (Data and File) on a scheduled basis.
-* Assists in post-copy sandbox operations by restoring valid user email addresses to mitigate deliverability locks.","OPSPortal_Orglimits_CNX__c, User","V51000000001002, V51000000002012",45
-V_C7AD5806,Clinical Discussion Validation,"Ensures data integrity and accuracy during clinical discussions by validating specific identifiers against active records.
-
-* Validates input Hub IDs during clinical discussions to prevent data entry errors.
-* Ensures that entered Hub IDs correctly correlate with active, mapped records in the custom Hub list.",Call2_Discussion_vod__c,V51000000002016,2
-V_28C47870,Medical Inquiry Management,"Manages the lifecycle and tracking of medical inquiries submitted by users.
-
-* Automatically populates the submission timestamp when a medical inquiry request is submitted.
-* Ensures accurate tracking and auditing of medical inquiry workflows.",Medical_Inquiry_vod__c,V51000000001018,1
-V_E8ED15FD,Staff Contact Synchronization,"Automates the creation and synchronization of standard Contact records based on custom staff entries to maintain organizational data integrity.
-
-* Triggers automatically upon the creation of custom staff records.
-* Migrates staff details directly into standard Contact records.
-* Ensures proper organizational structures and data consistency across standard and custom objects.","Contact, HBS_Staff_Account_CNX__c",V51000000002014,1
+* Automatically captures and records the email address of the event owner's manager on the event record.
+* Ensures internal organizational hierarchy is accurately reflected on medical events for compliance, approval routing, and reporting purposes.",Medical_Event_vod__c,V51000000001011,1
+V_8382E6B5,Opportunity and Risk Task Management,Automates the alignment of daily tasks with strategic opportunity and risk assessments. Key functionalities include: * Synchronizing strategy types from Opportunity and Risk records directly to Task activities. * Ensuring user activities are contextually linked to broader account strategies and risk factors.,"Opportunity_and_Risk__c, Task",V51000000002005,1

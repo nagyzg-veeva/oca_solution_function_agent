@@ -1,0 +1,5 @@
+ID,Name,Description,Complexity,Objects
+CG-001,Account Sync CG,Handles account creation and validation logic across domains,5,"account, contact"
+CG-002,Order Processing CG,Processes sales order status transitions and fulfillment,8,"order, order_line__c, account"
+CG-003,Order Notification CG,Triggers email and web notifications when order status changes,3,"order"
+CG-004,Product Catalog CG,Manages product pricing and catalog metadata,4,"product__c, pricebook__c"
