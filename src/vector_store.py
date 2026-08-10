@@ -21,10 +21,33 @@ def search_similar_functions(description: str, k: int = 1):
     Returns the top k matching documents as (Document, score) tuples. Each
     Document's metadata carries the full record (solution_function_id, name,
     component_groups, primary_objects, complexity_score), and page_content is
-    the business description.
+    the business description. The score is cosine similarity (higher = more
+    similar), per langchain_core's InMemoryVectorStore.
     """
     results = vector_store.similarity_search_with_score(description, k=k)
     return results
+
+
+def cosine_by_id(description: str) -> dict[str, float]:
+    """
+    Return a {solution_function_id: cosine_similarity} map of the given
+    description against every function currently in the registry.
+
+    Used by the validator's overlap detector as an independent, CG-agnostic
+    signal: two functions describing the same business capability have highly
+    similar descriptions even when assembled from different component groups.
+    The score is cosine similarity (higher = more similar); an empty registry
+    yields an empty map.
+    """
+    if not registry:
+        return {}
+    results = vector_store.similarity_search_with_score(description, k=len(registry))
+    scores: dict[str, float] = {}
+    for doc, score in results:
+        fid = doc.metadata.get("solution_function_id") or doc.id
+        if fid is not None:
+            scores[fid] = float(score)
+    return scores
 
 
 def add_solution_function_to_store(

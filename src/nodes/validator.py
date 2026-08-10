@@ -2,7 +2,7 @@ from typing import Dict, Any
 from pydantic import BaseModel, Field
 from langchain_google_genai import ChatGoogleGenerativeAI
 from src.state.schema import DomainState
-from src.vector_store import registry
+from src.vector_store import registry, cosine_by_id
 from src.dedup.scorer import score_pair, tier, Tier
 import json
 from src.prompts.loader import get_system_prompt
@@ -11,7 +11,11 @@ class ValidatorOutput(BaseModel):
     is_valid: bool = Field(description="True if the proposed functions pass criteria 1 (No Orphans) and 2 (Business Intent & Granularity).")
     validation_feedback: str = Field(description="If is_valid is False, provide detailed feedback referencing the specific rubric violation. If True, write 'Approved.'")
 
-llm = ChatGoogleGenerativeAI(model="gemini-3.1-pro-preview", temperature=0.1)
+# temperature=0.0: the granularity/cohesion criterion is subjective, and the
+# validator re-judges the whole proposal set every pass with no verdict memory.
+# Any non-determinism can flip a byte-identical function's verdict between passes
+# and burn retries, so keep verdicts deterministic.
+llm = ChatGoogleGenerativeAI(model="gemini-3.1-pro-preview", temperature=0.0)
 structured_llm = llm.with_structured_output(ValidatorOutput)
 
 
@@ -76,9 +80,15 @@ def _detect_overlaps(proposed_functions, resolved_no_merges=None):
         prop_auto = []
         prop_gray = []
 
+        # CG-agnostic semantic signal: cosine of this proposal's description
+        # against every registry function. Lets a near-identical description
+        # defer a pair to the adjudicator even when component-group overlap is
+        # low (the failure mode that produced the observed duplicates).
+        cosine_map = cosine_by_id(func.get("business_description", ""))
+
         for cid, candidate in registry.items():
             candidate_id = candidate.get("solution_function_id", candidate.get("id", ""))
-            score = score_pair(func, candidate)
+            score = score_pair(func, candidate, desc_cosine=cosine_map.get(candidate_id, 0.0))
             t = tier(score)
 
             if t == Tier.AUTO_MERGE:
@@ -92,6 +102,7 @@ def _detect_overlaps(proposed_functions, resolved_no_merges=None):
                     f"'{func['name']}' gray-zone vs '{candidate.get('name', '')}' "
                     f"(CG Jaccard {score.cg_jaccard:.2f}, name_sim {score.name_sim:.1f}, "
                     f"object_jaccard {score.object_jaccard:.2f}, "
+                    f"desc_cosine {score.desc_cosine:.2f}, "
                     f"overlap_coeff {score.overlap_coeff:.2f})"
                 )
 
