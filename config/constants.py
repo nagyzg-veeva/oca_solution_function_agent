@@ -33,7 +33,13 @@ OBJECT_OVERLAP_THRESHOLD = 0.75
 #
 # Name similarity (rapidfuzz token_set_ratio, 0-100 scale) at or above which a
 # pair is deferred to the adjudicator regardless of component-group overlap.
-NAME_GRAY_THRESHOLD = 90
+# Lowered 90->85: the observed cross-run duplicates cluster at token_set_ratio
+# 80-86 (e.g. "Case & Inquiry Management" vs "Medical Inquiry Management" = 83.7,
+# "Case Lifecycle & Operations Management" vs "Case & Inquiry Management" = 81.0),
+# just under the old gate, so they fell to NO_MERGE and were inserted as
+# duplicates. The adjudicator is the precision filter, so a slightly-low bar only
+# costs an LLM call, never a false merge.
+NAME_GRAY_THRESHOLD = 85
 
 # Business-description cosine similarity (GoogleGenerativeAI embeddings, higher =
 # more similar) at or above which a pair is deferred to the adjudicator
@@ -68,3 +74,22 @@ DESC_COSINE_THRESHOLD = 0.80
 # above the distinct cluster; the adjudicator backstops any borderline defer.
 OBJECT_GRAY_THRESHOLD = 0.75
 DESC_COSINE_SECONDARY = 0.72
+
+# Containment (overlap-coefficient) gray-zone trigger. The dominant observed
+# duplicate shape is a SMALL function whose component groups are a near-subset of
+# a LARGER function's — overlap_coeff ~1.0 but symmetric cg_jaccard low (e.g. a
+# 1-CG "Event Management & Visual Summaries" fully inside a 9-CG "Event & Speaker
+# Operations Management"). cg_jaccard is size-sensitive and misses this; the
+# overlap coefficient (intersection / smaller set) catches it. Historically
+# overlap_coeff was logged as a diagnostic only to avoid the "containment trap"
+# (a granular function sharing one common CG with a big aggregate is not
+# necessarily a duplicate). We now DO route on it, but only into the gray zone
+# and only WITH a corroborating semantic signal (similar name OR moderately
+# similar description), so the adjudicator — not the scorer — makes the final
+# call. Naked containment (one shared CG, unrelated name/description) still
+# routes NO_MERGE.
+OVERLAP_GRAY_THRESHOLD = 0.8
+# Name corroboration for the containment path (token_set_ratio, 0-100). Lower
+# than NAME_GRAY_THRESHOLD because here it only corroborates strong structural
+# containment rather than triggering a defer by itself.
+NAME_CORROB_THRESHOLD = 80

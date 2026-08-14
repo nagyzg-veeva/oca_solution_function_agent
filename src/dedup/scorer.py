@@ -11,6 +11,8 @@ from config.constants import (
     DESC_COSINE_THRESHOLD,
     OBJECT_GRAY_THRESHOLD,
     DESC_COSINE_SECONDARY,
+    OVERLAP_GRAY_THRESHOLD,
+    NAME_CORROB_THRESHOLD,
 )
 
 
@@ -81,6 +83,15 @@ def tier(score: ScoreBreakdown) -> Tier:
     if score.name_sim >= NAME_GRAY_THRESHOLD:
         return Tier.GRAY_ZONE
     if score.desc_cosine >= DESC_COSINE_THRESHOLD:
+        return Tier.GRAY_ZONE
+    # Containment: the smaller function's component groups are (near-)subset of
+    # the larger's. Caught by overlap_coeff (not the size-sensitive cg_jaccard),
+    # but only deferred WITH a corroborating name or description signal so a
+    # granular function sharing one common CG with a big aggregate is not
+    # deferred on containment alone.
+    if score.overlap_coeff >= OVERLAP_GRAY_THRESHOLD and (
+        score.name_sim >= NAME_CORROB_THRESHOLD or score.desc_cosine >= DESC_COSINE_SECONDARY
+    ):
         return Tier.GRAY_ZONE
     # Granular cross-domain recurrence: same primary object(s) AND a moderately
     # similar description. The secondary cosine gate keeps genuinely distinct

@@ -15,7 +15,7 @@ class ValidatorOutput(BaseModel):
 # validator re-judges the whole proposal set every pass with no verdict memory.
 # Any non-determinism can flip a byte-identical function's verdict between passes
 # and burn retries, so keep verdicts deterministic.
-llm = ChatGoogleGenerativeAI(model="gemini-3.1-pro-preview", temperature=0.0)
+llm = ChatGoogleGenerativeAI(model="gemini-3.6-flash", temperature=0.0, maxOutputTokens=65536)
 structured_llm = llm.with_structured_output(ValidatorOutput)
 
 
@@ -189,6 +189,9 @@ Proposed Solution Functions to evaluate:
 
     if gray_zone:
         print(f"   [Validator] {len(gray_zone)} proposed function(s) deferred to adjudicator (gray zone).")
+
+    if feedback:
+         print(f"   [Validator] {feedback}")
 
     update: Dict[str, Any] = {
         "is_valid": is_valid,

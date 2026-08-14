@@ -8,7 +8,19 @@ from src.prompts.loader import get_system_prompt
 class SolutionFunctionModel(BaseModel):
     solution_function_id: str = Field(default="", description="Leave empty for a new function. When merging into an existing registry function (per Required Merges), set this to the existing function's id.")
     name: str = Field(description="The name of the solution function (business focused). When merging, use the exact name of the existing registry function.")
-    business_description: str = Field(description="A comprehensive, business-oriented description that includes a clear, itemized list (bullet points) of the discrete functionalities this Solution Function provides. Must be easily understood by a Business Analyst without technical jargon.")
+    business_description: str = Field(description=(
+        "A comprehensive, business-oriented description that includes a clear, itemized list of the discrete "
+        "functionalities this Solution Function provides. Must be easily understood by a Business Analyst without "
+        "technical jargon. "
+        "FORMAT AS VALID MARKDOWN: write the intro sentence, then a blank line, then the itemized capabilities as a "
+        "Markdown unordered list where EACH item is on its own line and starts with '- ' (hyphen + space). "
+        "Do NOT use the '•' bullet character and do NOT put multiple items on one line. "
+        "Example:\\n"
+        "Tracks customer call interactions. Key capabilities include:\\n"
+        "\\n"
+        "- Calculates total annual submitted calls\\n"
+        "- Populates the most recent interaction date"
+    ))
     primary_objects: list[str] = Field(description="List of primary objects (e.g. Account, Call2_vod__c).")
     component_groups: list[str] = Field(description="List of Component Group IDs assigned to this function. All input component groups must be assigned.")
     complexity_score: int = Field(description="The aggregated complexity score of all assigned component groups.")
@@ -21,8 +33,8 @@ class SynthesizerOutput(BaseModel):
 # rather than re-derive the decomposition from scratch. Any drift in names /
 # component-group assignments between passes re-triggers overlap detection and
 # prevents the Builder-Critic loop from converging, so determinism matters here.
-llm = ChatGoogleGenerativeAI(model="gemini-3.1-pro-preview", temperature=0.0)
-structured_llm = llm.with_structured_output(SynthesizerOutput)
+llm = ChatGoogleGenerativeAI(model="gemini-3.6-flash", temperature=0.0, maxOutputTokens=65536)
+structured_llm = llm.with_structured_output(SynthesizerOutput, include_raw=True)
 
 def synthesizer_node(state: DomainState) -> Dict[str, Any]:
     """
@@ -76,10 +88,39 @@ def synthesizer_node(state: DomainState) -> Dict[str, Any]:
     print(f"   [Synthesizer] Calling LLM with Candidate Domain ({len(candidate_domain)} groups)...")
     
     # Call LLM
-    response: SynthesizerOutput = structured_llm.invoke([
+    raw_response = structured_llm.invoke([
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_prompt}
     ])
+
+    usage = (raw_response.get("raw").usage_metadata or {}) if raw_response.get("raw") else {}
+    meta = raw_response.get("raw").response_metadata or {} if raw_response.get("raw") else {}
+    print(f"   [Synthesizer] Raw message: content_len={len(raw_response.get('raw').content) if raw_response.get('raw') else -1}, "
+          f"num_tool_calls={len(raw_response.get('raw').tool_calls) if raw_response.get('raw') else -1}")
+    print(f"   [Synthesizer] finish_reason={meta.get('finish_reason')} | safety_ratings_present={'safety_ratings' in meta} | "
+          f"response_metadata_keys={sorted(meta.keys())}")
+    print(f"   [Synthesizer] Usage: input_tokens={usage.get('input_tokens')}, output_tokens={usage.get('output_tokens')}, "
+          f"total_tokens={usage.get('total_tokens')}")
+
+    if raw_response.get("parsing_error"):
+        raw = raw_response.get("raw")
+        print(f"   [Synthesizer] PARSING ERROR: {raw_response['parsing_error']}")
+        print(f"   [Synthesizer] Raw content (first 2000 chars):\n{str(getattr(raw, 'content', raw))[:2000]}")
+        print(f"   [Synthesizer] Tool call args summary (ids/keys):")
+        for call in getattr(raw, "tool_calls", []) or []:
+            args = call.get("args", {}) if isinstance(call, dict) else getattr(call, "args", {})
+            funcs = args.get("proposed_functions", [])
+            keys_seen = set()
+            for f in funcs:
+                keys_seen.update(f.keys())
+            print(f"      call '{call.get('id', '?')}': n_functions={len(funcs)}, set_of_keys={sorted(keys_seen)}")
+            for i, f in enumerate(funcs):
+                missing = set(SolutionFunctionModel.model_fields.keys()) - set(f.keys())
+                if missing:
+                    print(f"      function[{i}] id={f.get('solution_function_id', '?')} name={f.get('name', '?')[:60]!r} MISSING={sorted(missing)}")
+        raise raw_response["parsing_error"]
+
+    response: SynthesizerOutput = raw_response["parsed"]
     
     # Convert Pydantic models back to TypedDict formats for State
     proposed_functions = [

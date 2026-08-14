@@ -28,7 +28,8 @@ for row in df.itertuples():
     sf_to_insert = {
         "name__v": row.Name,
         "description__c": markdown.markdown(row.Description),
-        "org__cr.name__v": ORG_NAME
+        "org__cr.name__v": ORG_NAME,
+        "assessment_status_sf__c": "ready_for_review__c"
     }
 
     result = vc.insert(object=SF, data=[sf_to_insert])

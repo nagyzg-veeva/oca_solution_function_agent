@@ -14,7 +14,7 @@ class AdjudicationResult(BaseModel):
     rationale: str = Field(description="One-sentence justification for the decision.")
 
 
-llm = ChatGoogleGenerativeAI(model="gemini-3.1-pro-preview", temperature=0.0)
+llm = ChatGoogleGenerativeAI(model="gemini-3.6-flash", temperature=0.0, maxOutputTokens=65536)
 structured_llm = llm.with_structured_output(AdjudicationResult)
 
 
@@ -38,8 +38,10 @@ def _format_prompt(proposed: dict, candidates: list) -> str:
             f"    component_groups: {len(c.get('component_groups', []))} groups\n"
             f"    primary_objects: {len(c.get('primary_objects', []))} objects\n"
             f"    scores: {{cg_jaccard: {score.cg_jaccard:.3f}, "
+            f"cg_overlap_coeff: {score.overlap_coeff:.3f}, "
             f"name_sim: {score.name_sim:.1f}, "
-            f"object_jaccard: {score.object_jaccard:.3f}}}"
+            f"object_jaccard: {score.object_jaccard:.3f}, "
+            f"desc_cosine: {score.desc_cosine:.3f}}}"
         )
     candidates_block = "CANDIDATES:\n[\n" + "\n".join(cand_lines) + "\n]"
     return (

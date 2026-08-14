@@ -1,0 +1,1 @@
+https://reference.langchain.com/javascript/langchain-google-genai/ChatGoogleGenerativeAI?_gl=1*xqfkc7*_gcl_au*NTI3ODM4MzE5LjE3ODY0NjEwMTk.*_ga*NTY2OTg0NzY2LjE3Njk2MDg0MjM.*_ga_47WX3HKKY2*czE3ODY0NjM1MDckbzI1JGcxJHQxNzg2NDY0NjI4JGoyJGwwJGgw
