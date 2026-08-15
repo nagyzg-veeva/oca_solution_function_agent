@@ -16,7 +16,7 @@ class VaultConnector:
 
     api_version:str = "v25.2"
     timeout:int = 120
-    upsert_page_size:int = 500
+    upsert_page_size:int = 200
     query_page_size:int = 1000
     statuses:dict = {
         "SUCCESS":"SUCCESS",

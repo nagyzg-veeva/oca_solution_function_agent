@@ -76,11 +76,14 @@ def _group_component_groups(
 
             grouped_component_groups.append(current_group)
 
-    if not grouped_component_groups and orphaned_component_groups_list:
-        grouped_component_groups = [[]]
-
-    for idx in range(len(grouped_component_groups)):
-        grouped_component_groups[idx].extend(orphaned_component_groups_list)
+    # Orphans (component groups with no object joins) have no structural link to
+    # any object-based domain, so they cannot be matched to one. Broadcasting a
+    # copy into EVERY domain meant each orphan was synthesised once per domain,
+    # producing duplicate functions. Instead, place all orphans in a SINGLE
+    # dedicated domain so each is processed exactly once; the synthesiser
+    # decomposes it into granular per-process functions like any other domain.
+    if orphaned_component_groups_list:
+        grouped_component_groups.append(list(orphaned_component_groups_list))
 
     return {"component_groups": grouped_component_groups}
 

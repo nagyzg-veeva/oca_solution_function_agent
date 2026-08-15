@@ -36,6 +36,58 @@ class SynthesizerOutput(BaseModel):
 llm = ChatGoogleGenerativeAI(model="gemini-3.6-flash", temperature=0.0, maxOutputTokens=65536)
 structured_llm = llm.with_structured_output(SynthesizerOutput, include_raw=True)
 
+def _dedupe_cg_assignments(functions: list, candidate_domain: list) -> list:
+    """Deterministic safety net: guarantee each Component Group is assigned to
+    exactly ONE function.
+
+    The synthesizer prompt already requires one-CG-one-function, but the LLM can
+    still hand a shared Component Group to two granular processes in a single
+    pass (and orphan CGs used to be broadcast across domains). When a CG is
+    double-claimed we award it to the MOST SPECIFIC claimant — the function with
+    the fewest component groups, i.e. the atomic process the CG most directly
+    implements — and strip it from the rest; ties break on emission order. This
+    never drops a CG, so No-Orphans still holds; a function left with no CGs was
+    fully absorbed by more specific siblings and is removed. Complexity is
+    recomputed from the per-CG domain complexities so totals stay honest.
+
+    Trade-off: favouring the smallest claimant biases toward granularity (the
+    goal). In the rare case where a coherent multi-CG process shares a CG with a
+    spurious 1-CG function, the atomic claimant wins — inspect the output and
+    tune if that surfaces.
+    """
+    cg_complexity = {cg.get("id"): cg.get("complexity", 0) for cg in candidate_domain}
+
+    # Which functions claim each CG, in the order the LLM emitted them.
+    claims: Dict[str, list] = {}
+    for idx, fn in enumerate(functions):
+        for cg in fn.get("component_groups", []):
+            claims.setdefault(cg, []).append(idx)
+
+    # Owner per CG: fewest-CG function wins (most specific); tie-break by order.
+    owner = {
+        cg: min(idxs, key=lambda i: (len(functions[i].get("component_groups", [])), i))
+        for cg, idxs in claims.items()
+    }
+
+    deduped, dropped = [], []
+    for idx, fn in enumerate(functions):
+        kept = [cg for cg in fn.get("component_groups", []) if owner.get(cg) == idx]
+        if not kept:
+            dropped.append(fn.get("name", "?"))
+            continue
+        if kept != fn.get("component_groups", []):
+            fn = {**fn, "component_groups": kept}
+            # Recompute complexity from the domain map when every kept CG is known.
+            if all(cg in cg_complexity for cg in kept):
+                fn["complexity_score"] = sum(cg_complexity[cg] for cg in kept)
+        deduped.append(fn)
+
+    if dropped:
+        print(f"   [Synthesizer] CG-assignment safety net: removed "
+              f"{len(dropped)} fully-absorbed function(s): {dropped}")
+    return deduped
+
+
 def synthesizer_node(state: DomainState) -> Dict[str, Any]:
     """
     Synthesizer Agent (Builder):
@@ -134,7 +186,11 @@ def synthesizer_node(state: DomainState) -> Dict[str, Any]:
         }
         for pf in response.proposed_functions
     ]
-    
+
+    # Deterministic safety net: enforce one Component Group -> one function
+    # before the proposal leaves the builder (see _dedupe_cg_assignments).
+    proposed_functions = _dedupe_cg_assignments(proposed_functions, candidate_domain)
+
     # Return the state update.
     # The retry counter is owned by the validator (incremented only on a
     # failed validation), so the synthesizer does not touch it here.
